@@ -1,0 +1,67 @@
+[
+  {
+    "table_name": "tasks",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "tasks",
+    "column_name": "project_id",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "tasks",
+    "column_name": "status_id",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "tasks",
+    "column_name": "created_by",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "tasks",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "tasks",
+    "column_name": "title",
+    "data_type": "text"
+  },
+  {
+    "table_name": "tasks",
+    "column_name": "description",
+    "data_type": "text"
+  },
+  {
+    "table_name": "tasks",
+    "column_name": "priority",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "tasks",
+    "column_name": "size",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "tasks",
+    "column_name": "startDate",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "tasks",
+    "column_name": "endDate",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "tasks",
+    "column_name": "id",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "tasks",
+    "column_name": "statusPosition",
+    "data_type": "numeric"
+  }
+] 

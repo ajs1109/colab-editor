@@ -1,0 +1,47 @@
+[
+  {
+    "table_name": "statuses",
+    "column_name": "id",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "statuses",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "statuses",
+    "column_name": "label",
+    "data_type": "text"
+  },
+  {
+    "table_name": "statuses",
+    "column_name": "description",
+    "data_type": "text"
+  },
+  {
+    "table_name": "statuses",
+    "column_name": "color",
+    "data_type": "text"
+  },
+  {
+    "table_name": "statuses",
+    "column_name": "project_id",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "statuses",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "statuses",
+    "column_name": "order",
+    "data_type": "numeric"
+  },
+  {
+    "table_name": "statuses",
+    "column_name": "limit",
+    "data_type": "numeric"
+  }
+] 

@@ -1,0 +1,47 @@
+[
+  {
+    "table_name": "project_members",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "project_members",
+    "column_name": "project_id",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "project_members",
+    "column_name": "user_id",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "project_members",
+    "column_name": "role",
+    "data_type": "text"
+  },
+  {
+    "table_name": "project_members",
+    "column_name": "invitationStatus",
+    "data_type": "text"
+  },
+  {
+    "table_name": "project_members",
+    "column_name": "invited_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "project_members",
+    "column_name": "joined_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "project_members",
+    "column_name": "id",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "project_members",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone"
+  }
+] 

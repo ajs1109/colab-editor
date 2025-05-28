@@ -1,0 +1,27 @@
+[
+  {
+    "table_name": "task_assignees",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "task_assignees",
+    "column_name": "task_id",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "task_assignees",
+    "column_name": "id",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "task_assignees",
+    "column_name": "user_id",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "task_assignees",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone"
+  }
+] 

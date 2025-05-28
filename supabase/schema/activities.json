@@ -1,0 +1,32 @@
+[
+  {
+    "table_name": "activities",
+    "column_name": "id",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "activities",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "activities",
+    "column_name": "task_id",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "activities",
+    "column_name": "user_id",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "activities",
+    "column_name": "content",
+    "data_type": "ARRAY"
+  },
+  {
+    "table_name": "activities",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone"
+  }
+] 

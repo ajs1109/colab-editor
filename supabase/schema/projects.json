@@ -1,0 +1,42 @@
+[
+  {
+    "table_name": "projects",
+    "column_name": "id",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "projects",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "projects",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "projects",
+    "column_name": "name",
+    "data_type": "text"
+  },
+  {
+    "table_name": "projects",
+    "column_name": "description",
+    "data_type": "text"
+  },
+  {
+    "table_name": "projects",
+    "column_name": "readme",
+    "data_type": "text"
+  },
+  {
+    "table_name": "projects",
+    "column_name": "created_by",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "projects",
+    "column_name": "closed",
+    "data_type": "boolean"
+  }
+] 
