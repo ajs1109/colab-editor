@@ -12,7 +12,7 @@ import { Ellipsis } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { LabelBadge } from '@/components/LabelBadge';
 import { useParams, useSearchParams } from 'next/navigation';
-import { defaultFieldColor } from '@/consts/colors';
+import { defaultFieldColor } from '@/constants/colors';
 import { CreateOrEditLabelForm } from '@/components/CreateOrEditLabelForm';
 import { createClient } from '@/utils/supabase/client';
 import { useToast } from '@/components/ui/use-toast';

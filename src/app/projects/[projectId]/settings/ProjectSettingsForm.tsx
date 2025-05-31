@@ -16,7 +16,7 @@ import { DeleteProjectDialog } from '../../components/DeleteProjectDialog';
 import TextEditor from '@/components/TextEditor';
 import { useProjectAccess } from '@/hooks/useProjectAccess';
 import { useAccessStore } from '@/stores/useAccessStore';
-import { ProjectAction } from '@/consts';
+import { ProjectAction } from '@/constants';
 
 interface ProjectSettingsFormProps {
   project: IProject;

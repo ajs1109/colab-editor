@@ -4,7 +4,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-import { defaultFieldColor } from '@/consts/colors';
+import { defaultFieldColor } from '@/constants/colors';
 import { getAllKeysExceptLabelKey } from '@/lib/helpers';
 import {
   CartesianGrid,

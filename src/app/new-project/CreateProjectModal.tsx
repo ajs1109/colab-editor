@@ -21,7 +21,7 @@ import {
   defaultPriorities,
   defaultSizes,
   defaultStatuses,
-} from '@/consts/default-options';
+} from '@/constants/default-options';
 import { useModalDialog } from '@/hooks/useModalDialog';
 import { cn } from '@/lib/utils';
 import { Plus } from 'lucide-react';

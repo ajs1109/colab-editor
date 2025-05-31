@@ -1,6 +1,6 @@
 'use client';
 import { successBtnStyles } from '@/app/commonStyles';
-import { customFieldsColors } from '@/consts/colors';
+import { customFieldsColors } from '@/constants/colors';
 import { getCustomFieldTagColorsForTheme } from '@/lib/helpers';
 import { useTheme } from 'next-themes';
 import { ReactNode, useState } from 'react';

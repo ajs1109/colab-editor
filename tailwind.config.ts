@@ -26,6 +26,15 @@ const config = {
                 ]
   		},
   		colors: {
+			github: {
+				header: '#24292f',
+				bg: '#0d1117',
+				sidebar: '#161b22',
+				border: '#30363d',
+				text: '#e6edf3',
+				muted: '#7d8590',
+				highlight: '#1f6feb',
+			},
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',

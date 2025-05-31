@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { ProjectActions } from './ProjectActions';
 import { useProjectAccess } from '@/hooks/useProjectAccess';
-import { ProjectAction } from '@/consts';
+import { ProjectAction } from '@/constants';
 
 interface ProjectItemProps {
   project: IProject;

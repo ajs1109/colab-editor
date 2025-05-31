@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAccessStore } from '@/stores/useAccessStore';
-import { ProjectAction } from '@/consts';
+import { ProjectAction } from '@/constants';
 
 interface UseProjectAccessProps {
   projectId: string;

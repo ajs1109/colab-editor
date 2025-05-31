@@ -3,7 +3,7 @@ import { successBtnStyles } from '@/app/commonStyles';
 import { CreateOrEditLabelForm } from '@/components/CreateOrEditLabelForm';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { ProjectAction } from '@/consts';
+import { ProjectAction } from '@/constants';
 import { useProjectAccess } from '@/hooks/useProjectAccess';
 import { useProjectQueries } from '@/hooks/useProjectQueries';
 import { cn } from '@/lib/utils';

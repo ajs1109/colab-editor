@@ -5,7 +5,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-import { grayFieldColor } from '@/consts/colors';
+import { grayFieldColor } from '@/constants/colors';
 import { getAllKeysExceptLabelKey } from '@/lib/helpers';
 import {
   Bar,

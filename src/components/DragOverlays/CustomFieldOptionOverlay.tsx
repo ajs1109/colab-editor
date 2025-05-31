@@ -1,7 +1,7 @@
 import { Ellipsis, GripVertical } from 'lucide-react';
 import * as React from 'react';
 import { CustomFieldTagRenderer } from '../CustomFieldTagRenderer';
-import { grayFieldColor } from '@/consts/colors';
+import { grayFieldColor } from '@/constants/colors';
 
 interface CustomFieldOptionOverlayProps {
   label?: string;

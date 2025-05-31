@@ -3,7 +3,7 @@ import { successBtnStyles } from '@/app/commonStyles';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-import { ProjectAction } from '@/consts';
+import { ProjectAction } from '@/constants';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/utils/supabase/client';
 import { tasks as taskUtils } from '@/utils/tasks';

@@ -1,4 +1,4 @@
-import { SelectedCustomField } from '@/consts';
+import { SelectedCustomField } from '@/constants';
 import { getTasksByLabel } from './tasks-by-label';
 import {
   getTasksByLabelsGroupedByPriority,

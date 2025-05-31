@@ -13,7 +13,7 @@ import { useModalDialog } from '@/hooks/useModalDialog';
 import { cn } from '@/lib/utils';
 import React, { ReactElement } from 'react';
 import { CustomOptionForm } from './CustomOptionForm';
-import { ProjectAction } from '@/consts';
+import { ProjectAction } from '@/constants';
 import { useProjectAccess } from '@/hooks/useProjectAccess';
 import { useParams } from 'next/navigation';
 

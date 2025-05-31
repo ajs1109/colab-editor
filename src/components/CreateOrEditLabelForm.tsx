@@ -13,7 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { labelColors } from '@/consts/colors';
+import { labelColors } from '@/constants/colors';
 
 const defaultColor = labelColors[1];
 

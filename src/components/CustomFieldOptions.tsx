@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { grayFieldColor } from '@/consts/colors';
+import { grayFieldColor } from '@/constants/colors';
 import { useModalDialog } from '@/hooks/useModalDialog';
 import { cn } from '@/lib/utils';
 import {
