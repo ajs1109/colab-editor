@@ -1,13 +1,14 @@
 import { createClient } from '@/lib/apiClient';
+import { auth } from '@/utils/auth';
 
 export const login = async (email: string, password: string) => {
   const supabase = createClient();
-  const { user, error } = await supabase.auth.signIn({
+  const { user } = await auth.signIn(
     email,
-    password,
-  });
+    password
+  );
 
-  if (error) throw new Error(error.message);
+  //if (error) throw new Error(error.message);
   return user;
 };
 

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
-import { createClient } from '@/utils/supabase/client';
+import { createClient } from '@/lib/apiClient';
 import type { User } from '@supabase/supabase-js';
 import { usePathname } from 'next/navigation';
 import { useAccessStore } from '@/stores/useAccessStore';

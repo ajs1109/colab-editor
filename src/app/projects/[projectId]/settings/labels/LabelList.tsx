@@ -14,7 +14,7 @@ import { LabelBadge } from '@/components/LabelBadge';
 import { useParams, useSearchParams } from 'next/navigation';
 import { defaultFieldColor } from '@/constants/colors';
 import { CreateOrEditLabelForm } from '@/components/CreateOrEditLabelForm';
-import { createClient } from '@/utils/supabase/client';
+import { createClient } from '@/lib/apiClient';
 import { useToast } from '@/components/ui/use-toast';
 import { useProjectQueries } from '@/hooks/useProjectQueries';
 

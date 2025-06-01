@@ -6,7 +6,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useDebounce } from '@/hooks/useDebounce';
 import { cn } from '@/lib/utils';
 import { emails } from '@/utils/emails';
-import { createClient } from '@/utils/supabase/client';
+import { createClient } from '@/lib/apiClient';
 import { Loader2, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { RoleSelect } from './RoleSelect';

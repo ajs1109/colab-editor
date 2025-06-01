@@ -1,34 +1,34 @@
+"use client";
+
 import { CommitHistory } from '@/components/repo/CommitHistory';
 import { RepoHeader } from '@/components/repo/RepoHeader';
-import { RepoNav } from '@/components/repo/RepoNav';
-import { sampleRepo, sampleUser, sampleCommits } from '@/lib/sample-data';
+import { sampleRepo, sampleUser, sampleCommits, permissions } from '@/lib/sample-data';
+import { use } from 'react';
 
 export default function CommitsPage({
   params,
 }: {
-  params: { username: string; repo: string };
+  params: Promise<{ username: string; repo: string }>;
 }) {
+  const { username, repo } = use(params);
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background text-foreground">
       <RepoHeader 
         repo={sampleRepo} 
         owner={sampleUser} 
-        branches={[]} 
-        currentBranch={{ name: 'main', commit: sampleCommits[0], protected: false }} 
+        currentUser={sampleUser} 
+        currentTab="commits"
+        username={username}
+        permissions={permissions}
       />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <RepoNav 
-          repo={sampleRepo} 
-          currentTab="code" 
-          username={params.username} 
-        />
-        
+      <div className="container py-8">       
         <div className="mt-6">
           <CommitHistory 
             commits={sampleCommits} 
             repo={sampleRepo} 
-            username={params.username} 
+            username={username} 
           />
         </div>
       </div>

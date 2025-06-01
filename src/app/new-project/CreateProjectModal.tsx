@@ -32,7 +32,7 @@ import { LabelList } from '../projects/[projectId]/settings/labels/LabelList';
 import { useRouter } from 'next/navigation';
 import { projects } from '@/utils/projects';
 import { useToast } from '@/components/ui/use-toast';
-import { createClient } from '@/utils/supabase/client';
+import { createClient } from '@/lib/apiClient';
 
 interface Props {
   projectDetails: {

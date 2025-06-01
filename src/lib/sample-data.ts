@@ -1,21 +1,32 @@
-import { User, Repository, Branch, Commit, File, Issue, Label, PullRequest } from '@/types/project';
+import { User, Repository, Branch, Commit, File, Issue, Label } from '@/types/project';
 
 export const sampleUser: User = {
   id: 'user1',
   username: 'octocat',
   avatar_url: 'https://avatars.githubusercontent.com/u/583231?v=4',
-  name: 'The Octocat',
+};
+
+export const sampleUser2: User = {
+  id: 'user2',
+  username: 'octocat2',
+  avatar_url: 'https://avatars.githubusercontent.com/u/583231?v=4',
+};
+
+export const sampleUser3: User = {
+  id: 'user3',
+  username: 'octocat3',
+  avatar_url: 'https://avatars.githubusercontent.com/u/583231?v=4',
 };
 
 export const sampleRepo: Repository = {
   id: 'repo1',
   name: 'Hello-World',
   description: 'My first repository',
-  is_public: true,
+  is_public: false,
+  members: [sampleUser, sampleUser2, sampleUser3, sampleUser],
   created_at: '2020-01-01T00:00:00Z',
   updated_at: '2023-05-15T00:00:00Z',
   owner_id: 'user1',
-  default_branch: 'main',
 };
 
 export const sampleBranches: Branch[] = [
@@ -45,36 +56,48 @@ export const sampleBranches: Branch[] = [
   },
 ];
 
+
+// Sample permissions - in real app, get from Supabase based on user role
+export const permissions = {
+  read: true,
+  write: true, // Change based on user role
+  admin: false // Change based on user role
+}
+
 export const sampleFiles: File[] = [
   {
+    id: 'file1',
     name: 'README.md',
     path: 'README.md',
     type: 'file',
     size: 1024,
-    sha: 'sha1',
     content: '# Hello World\n\nThis is my first repository!',
+    is_directory: false
   },
   {
+    id: 'file2',
     name: 'src',
     path: 'src',
     type: 'dir',
-    sha: 'sha2',
+    is_directory: true,
   },
   {
+  id: 'file3',
     name: 'index.js',
     path: 'src/index.js',
     type: 'file',
     size: 512,
-    sha: 'sha3',
     content: 'console.log("Hello World!");',
+    is_directory: false
   },
   {
+  id: 'file4',
     name: 'styles.css',
     path: 'src/styles.css',
     type: 'file',
     size: 768,
-    sha: 'sha4',
     content: 'body { margin: 0; padding: 0; }',
+    is_directory: false
   },
 ];
 
@@ -131,21 +154,5 @@ export const sampleIssues: Issue[] = [
     author: sampleUser,
     assignees: [sampleUser],
     labels: [sampleLabels[0]],
-  },
-];
-
-export const samplePullRequests: PullRequest[] = [
-  {
-    id: 'pr1',
-    title: 'Add new feature',
-    body: 'This PR adds a new awesome feature',
-    state: 'open',
-    created_at: '2023-02-01T00:00:00Z',
-    updated_at: '2023-02-02T00:00:00Z',
-    author: sampleUser,
-    assignees: [sampleUser],
-    labels: [sampleLabels[1]],
-    base_branch: 'main',
-    head_branch: 'feature/new-stuff',
   },
 ];

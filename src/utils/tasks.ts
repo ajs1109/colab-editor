@@ -1,5 +1,5 @@
 import { DateUpdates } from '@/hooks/useTaskQueries';
-import { createClient } from './supabase/client';
+import { createClient } from '../lib/apiClient';
 
 const supabase = createClient();
 

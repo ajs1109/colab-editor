@@ -1,8 +1,6 @@
 import { useAccessStore } from '@/stores/useAccessStore';
-import { createClient } from './supabase/client';
+import { supabase } from '../lib/apiClient';
 import { users } from './users';
-
-const supabase = createClient();
 
 export type AuthError = {
   message: string;

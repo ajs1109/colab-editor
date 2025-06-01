@@ -1,3 +1,4 @@
+// CodeViewer.tsx
 import { File } from '@/types/project';
 import { Icons } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
@@ -15,41 +16,29 @@ export function CodeViewer({ file, repo, username, branch }: CodeViewerProps) {
   const extension = file.name.split('.').pop() || 'text';
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-      <div className="flex items-center justify-between bg-gray-100 px-4 py-2 border-b border-gray-200">
-        <div className="flex items-center space-x-2">
-          <Icons.file className="h-4 w-4 text-blue-500" />
-          <span className="font-medium">{file.name}</span>
+    <div className="bg-muted/10 border border-border rounded-lg overflow-hidden">
+      <div className="flex items-center justify-between p-5 border-b border-border">
+        <div className="flex items-center gap-3">
+          <Icons.file className="h-4 w-4" />
+          <span className="font-semibold">{file.name}</span>
         </div>
-        <div className="flex space-x-2">
-          <Button variant="ghost" size="sm">
-            <Icons.history className="mr-2 h-4 w-4" />
-            History
-          </Button>
-          <Button variant="ghost" size="sm">
-            <Icons.pencil className="mr-2 h-4 w-4" />
-            Edit
-          </Button>
-          <Button variant="ghost" size="sm">
-            <Icons.trash className="mr-2 h-4 w-4" />
-            Delete
-          </Button>
-          <Button variant="ghost" size="sm">
-            <Icons.raw className="mr-2 h-4 w-4" />
-            Raw
-          </Button>
-          <Button variant="ghost" size="sm">
-            <Icons.download className="mr-2 h-4 w-4" />
-            Download
-          </Button>
-        </div>
+        <Button variant="outline" className="gap-2">
+          <Icons.edit className="h-4 w-4" />
+          Edit
+        </Button>
       </div>
+      
       <div className="p-0">
         <SyntaxHighlighter
           language={extension}
           style={atomOneDark}
           showLineNumbers
-          customStyle={{ margin: 0, borderRadius: 0 }}
+          customStyle={{ 
+            margin: 0, 
+            borderRadius: 0,
+            background: 'rgba(240, 246, 252, 0.01)',
+            padding: '2rem'
+          }}
         >
           {file.content || ''}
         </SyntaxHighlighter>

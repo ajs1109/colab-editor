@@ -2,7 +2,6 @@ export interface User {
   id: string;
   username: string;
   avatar_url: string;
-  name: string;
 }
 
 export interface Repository {
@@ -10,11 +9,17 @@ export interface Repository {
   name: string;
   description: string;
   is_public: boolean;
+  owner_id: string;
   created_at: string;
   updated_at: string;
-  owner_id: string;
-  default_branch: string;
+  members: User[];
+  permissions?: {
+    read: boolean;
+    write: boolean;
+    admin: boolean;
+  };
 }
+
 
 export interface Branch {
   name: string;
@@ -29,15 +34,6 @@ export interface Commit {
   committer: User;
   date: string;
   tree_sha: string;
-}
-
-export interface File {
-  name: string;
-  path: string;
-  type: 'file' | 'dir';
-  size?: number;
-  sha: string;
-  content?: string;
 }
 
 export interface Issue {
@@ -59,16 +55,13 @@ export interface Label {
   description: string;
 }
 
-export interface PullRequest {
+export interface File {
   id: string;
-  title: string;
-  body: string;
-  state: 'open' | 'closed' | 'merged';
-  created_at: string;
-  updated_at: string;
-  author: User;
-  assignees: User[];
-  labels: Label[];
-  base_branch: string;
-  head_branch: string;
+  path: string;
+  name: string;
+  type: 'file' | 'dir';
+  content?: string;
+  size?: number;
+  extension?: string;
+  is_directory: boolean;
 }

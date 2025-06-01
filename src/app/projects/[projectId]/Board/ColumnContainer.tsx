@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { ProjectAction } from '@/constants';
 import { cn } from '@/lib/utils';
-import { createClient } from '@/utils/supabase/client';
+import { createClient } from '@/lib/apiClient';
 import { tasks as taskUtils } from '@/utils/tasks';
 import { UniqueIdentifier } from '@dnd-kit/core';
 import {

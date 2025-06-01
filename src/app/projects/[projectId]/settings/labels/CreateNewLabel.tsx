@@ -7,7 +7,7 @@ import { ProjectAction } from '@/constants';
 import { useProjectAccess } from '@/hooks/useProjectAccess';
 import { useProjectQueries } from '@/hooks/useProjectQueries';
 import { cn } from '@/lib/utils';
-import { createClient } from '@/utils/supabase/client';
+import { createClient } from '@/lib/apiClient';
 import React, { useState } from 'react';
 
 interface Props {

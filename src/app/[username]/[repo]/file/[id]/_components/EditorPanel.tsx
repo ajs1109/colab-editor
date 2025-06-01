@@ -1,4 +1,5 @@
 "use client";
+
 import { useCodeEditorStore } from "@/stores/useCodeEditorStore";
 import { useEffect, useState } from "react";
 import { defineMonacoThemes, LANGUAGE_CONFIG } from "@/constants/editor-theme";
@@ -6,17 +7,11 @@ import { Editor } from "@monaco-editor/react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { RotateCcwIcon, ShareIcon, TypeIcon } from "lucide-react";
-//import { useClerk } from "@clerk/nextjs";
 import { EditorPanelSkeleton } from "./EditorPanelSkeleton";
-//import useMounted from "@/hooks/useMounted";
-import ShareSnippetDialog from "./ShareSnippetDialog";
 
 function EditorPanel() {
-  //const clerk = useClerk();
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const { language, theme, fontSize, editor, setFontSize, setEditor } = useCodeEditorStore();
-
-  //const mounted = useMounted();
 
   useEffect(() => {
     const savedCode = localStorage.getItem(`editor-code-${language}`);
@@ -44,8 +39,6 @@ function EditorPanel() {
     setFontSize(size);
     localStorage.setItem("editor-font-size", size.toString());
   };
-
-  //if (!mounted) return null;
 
   return (
     <div className="relative">
@@ -107,7 +100,6 @@ function EditorPanel() {
 
         {/* Editor  */}
         <div className="relative group rounded-xl overflow-hidden ring-1 ring-white/[0.05]">
-          {/* {clerk.loaded && ( */}
             <Editor
               height="600px"
               language={LANGUAGE_CONFIG[language].monacoLanguage}
@@ -137,13 +129,8 @@ function EditorPanel() {
                 },
               }}
             />
-          {/* ) */}
-          {/* } */}
-
-          {/* {!clerk.loaded && <EditorPanelSkeleton />} */}
         </div>
       </div>
-      {/* {isShareDialogOpen && <ShareSnippetDialog onClose={() => setIsShareDialogOpen(false)} />} */}
     </div>
   );
 }

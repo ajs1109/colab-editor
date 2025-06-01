@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { UserAvatar } from '@/components/Avatar';
 import { useToast } from '@/components/ui/use-toast';
-import { createClient } from '@/utils/supabase/client';
+import { createClient } from '@/lib/apiClient';
 import { useState, useMemo } from 'react';
 import { RoleSelect } from './RoleSelect';
 import { useProjectAccess } from '@/hooks/useProjectAccess';

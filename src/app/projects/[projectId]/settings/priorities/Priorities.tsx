@@ -7,7 +7,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useProjectQueries } from '@/hooks/useProjectQueries';
 import { cn } from '@/lib/utils';
 import { compareAndUpdateItems, hasChanges } from '@/utils/array-utils';
-import { createClient } from '@/utils/supabase/client';
+import { createClient } from '@/lib/apiClient';
 import { useState } from 'react';
 
 interface Props {
