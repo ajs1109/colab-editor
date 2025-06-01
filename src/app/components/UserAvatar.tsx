@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import React from 'react';
 
 interface UserAvatarProps {
@@ -9,7 +10,7 @@ interface UserAvatarProps {
 const UserAvatar: React.FC<UserAvatarProps> = ({ username, avatarUrl, size = 40 }) => {
   return (
     <div style={{ display: 'flex', alignItems: 'center' }}>
-      <img
+      <Image
         src={avatarUrl}
         alt={`${username}'s avatar`}
         style={{

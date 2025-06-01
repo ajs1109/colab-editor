@@ -14,46 +14,21 @@ export interface IRepository {
   pullRequestsCount: number;
 }
 
-export interface IIssue {
-  id: string;
-  title: string;
-  description: string;
-  status: 'open' | 'closed';
-  createdAt: string;
-  updatedAt: string;
-  assignee: string | null;
-}
-
-export interface IPullRequest {
-  id: string;
-  title: string;
-  description: string;
-  status: 'open' | 'merged' | 'closed';
-  createdAt: string;
-  updatedAt: string;
-  author: string;
-  reviewers: string[];
-}
-
 export interface IUser {
   id: string;
-  username: string;
   email: string;
+  description: string;
   avatarUrl: string;
+  created_at: Date;
+  updated_at: Date;
+  links: IUserLink[];
+  provider: 'google' | 'github' | 'email';
 }
 
 export interface IProject {
   id: string;
   name: string;
   description: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface IWikiPage {
-  id: string;
-  title: string;
-  content: string;
   createdAt: string;
   updatedAt: string;
 }

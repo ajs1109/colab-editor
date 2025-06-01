@@ -8,6 +8,7 @@ import { ProjectAction } from '@/constants';
 
 interface ProjectItemProps {
   project: IProject;
+  user: IUser;
   tab: 'active' | 'all' | 'closed';
   setProjectToClose?: (id: string) => void;
   setProjectToReopen?: (id: string) => void;
@@ -17,6 +18,7 @@ interface ProjectItemProps {
 export const ProjectItem = ({
   project,
   tab,
+  user,
   setProjectToClose,
   setProjectToReopen,
   setProjectToDelete,
