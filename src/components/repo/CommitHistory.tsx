@@ -2,17 +2,18 @@
 import { Commit } from "@/types/project";
 import { Icons } from "@/components/ui/icons";
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import CustomAvatar from "../ui/custom-avatar";
+import DateRangePicker from "../date-range-picker";
 
 interface CommitHistoryProps {
   commits: Commit[];
-  repo: { name: string };
+  repo: string;
   username: string;
   showFullHistory?: boolean;
 }
 
-export function CommitHistory({
+export default function CommitHistory({
   commits,
   repo,
   username,
@@ -30,6 +31,7 @@ export function CommitHistory({
             <Icons.history className="mr-2 h-4 w-4" />
             History {showFullHistory ? "Full" : "Recent"}
           </Button>
+          {/* <DateRangePicker/> */}
         </div>
       )}
 
@@ -40,23 +42,18 @@ export function CommitHistory({
             className="p-4 hover:bg-muted/10 transition-colors"
           >
             <div className="flex items-start gap-4">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={commit.author.avatar_url} />
-                <AvatarFallback>
-                  {commit.author.username.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
+              <CustomAvatar url={{name: commit.committer.name, imageUrl: commit.committer.avatar}}/>
               <div className="flex-1">
                 <div className="flex flex-wrap items-center gap-1">
                   <Link
                     href={`/${username}`}
                     className="font-medium hover:text-primary hover:underline"
                   >
-                    {commit.author.username}
+                    {commit.committer.name}
                   </Link>
                   <span className="text-muted-foreground">committed</span>
                   <Link
-                    href={`/${username}/${repo.name}/commit/${commit.id}`}
+                    href={`/${username}/${repo}/commit/${commit.id}`}
                     className="font-mono text-sm text-primary hover:underline"
                   >
                     {commit.id.substring(0, 7)}
@@ -66,10 +63,11 @@ export function CommitHistory({
                 <div className="mt-2 flex items-center text-xs text-muted-foreground">
                   <Icons.calendar className="h-3 w-3 mr-1" />
                   <span>
-                    {new Date(commit.date).toLocaleDateString("en-US", {
+                    {new Date(commit.committed_at).toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "short",
                       day: "numeric",
+                      timeZone: "UTC"
                     })}
                   </span>
                 </div>

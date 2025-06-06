@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 interface RepoHeaderProps {
   repo: Repository;
-  owner: User;
+  owner: IUser;
   currentUser?: User;
   currentTab: 'code' | 'commits' | 'security' | 'settings';
   username: string;
@@ -30,8 +30,9 @@ export function RepoHeader({
   const memberCount = repo.members?.length || 1;
   const creationDate = format(new Date(repo.created_at), 'MMM d, yyyy');
   const avatarUrls: Avatar[] = repo.members?.map(member => ({
-    imageUrl: member.avatar_url,
-    profileUrl: `/${member.username}`
+    imageUrl: member.avatar,
+    profileUrl: `/${member.name}`,
+    name: member.name 
   })) || [];
 
    const tabs = [
@@ -51,7 +52,7 @@ export function RepoHeader({
           <Icons.folder className="h-7 w-7 text-primary mt-1" />
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-4">
-              {owner.username} / {repo.name}
+              {owner.name} / {repo.name}
             </h1>
             <p className="text-muted-foreground">{repo.description}</p>
           </div>
@@ -67,6 +68,10 @@ export function RepoHeader({
             </div>
           ) : (
             <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 px-3 py-1 bg-muted/20 rounded-full">
+                <Icons.globe className="h-4 w-4" />
+              <span>Private</span>
+              </div>
               <span className="text-muted-foreground">
                 {memberCount} {memberCount === 1 ? 'member' : 'members'}
               </span>
@@ -78,7 +83,7 @@ export function RepoHeader({
           <div className="flex items-center gap-2 text-muted-foreground">
             <Icons.calendar className="h-4 w-4" />
             <span>
-              {isCreator ? 'Created by you' : `Created by ${owner.username}`} • {creationDate}
+              {isCreator ? 'Created by you' : `Created by ${owner.name}`} • {creationDate}
             </span>
           </div>
         </div>

@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { useUserStore } from '@/stores/userStore';
 import { supabase } from '@/lib/apiClient';
 import { users } from '@/utils/users';
-import type { IUser } from '@/types';
+import type { User } from '@/types';
 
 interface UserProviderProps {
   children: React.ReactNode;

@@ -1,7 +1,7 @@
 // store/userStore.ts
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { IUser } from '@/types';
+import type { User } from '@/types/project';
 
 interface UserState {
   user: IUser | null;

@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { projects } from '@/utils/projects';
 
 export default async function ProjectsPage() {
+
   const supabase = await createClient();
 
   const {

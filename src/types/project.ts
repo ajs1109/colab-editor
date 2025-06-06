@@ -12,7 +12,7 @@ export interface Repository {
   owner_id: string;
   created_at: string;
   updated_at: string;
-  members: User[];
+  members: IUser[];
   permissions?: {
     read: boolean;
     write: boolean;
@@ -31,8 +31,8 @@ export interface Commit {
   id: string;
   message: string;
   author: User;
-  committer: User;
-  date: string;
+  committer: IUser;
+  committed_at: string;
   tree_sha: string;
 }
 

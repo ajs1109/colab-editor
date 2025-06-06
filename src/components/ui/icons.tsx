@@ -47,7 +47,9 @@ import {
   Type,
   File,
   Loader,
-  Save
+  Save,
+  User,
+  ChevronUp
 } from 'lucide-react';
 
 export const Icons = {
@@ -101,5 +103,8 @@ export const Icons = {
   type: Type,
   loader: Loader,
   magicWand: Share2,
-  save: Save
+  save: Save,
+  user: User,
+  chevronUp: ChevronUp,
+  arrowRight: ChevronRight
 };

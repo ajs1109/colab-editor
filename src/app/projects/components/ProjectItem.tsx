@@ -34,7 +34,7 @@ export const ProjectItem = ({
               {project.name}
             </h1>
           ) : (
-            <Link href={`/projects/${project.id}`}>
+            <Link href={`/${user.name}/${project.name}`}>
               <h1 className="text-lg font-semibold">{project.name}</h1>
             </Link>
           )}

@@ -1,39 +1,38 @@
-"use client";
+'use client';
 
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useParams, redirect } from 'next/navigation';
 import { useSocket } from '@/lib/socket';
 import { CollabEditor } from '@/components/repo/CollabEditor';
 import { UserPresence } from '@/components/repo/UserPresence';
 import { Icons } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
-import { redirect } from 'next/navigation';
+import EditPage from '../../fileEditor/[...filepath]/page';
 
-export default function FileEditPage({
-  params
-}: {
-  params: Promise<{ username: string; repo: string; filepath: string }>;}) {
-  const { username, repo, filepath } = use(params);
+export default function FileEditPa(){
+  return <EditPage/>
+}
+
+export function FileEditPage() {
+  const params = useParams();
+  const { username, repo, filepath } = extractParams(params);
+  
   const [fileContent, setFileContent] = useState('');
-  const [users, setUsers] = useState<Array<{id: string, name: string, color: string}>>([]);
+  const [users, setUsers] = useState<Array<{ id: string, name: string, color: string }>>([]);
   const socket = useSocket();
   const userId = socket?.id || '';
 
   useEffect(() => {
     if (!socket || !username || !repo || !filepath) return;
 
-    // Join the editing room
-    socket.emit('join-file-room', { 
-      roomId: `${username}/${repo}/${filepath}`,
-      name: username,
-      userId
-    });
+    const roomId = `${username}/${repo}/${filepath}`;
 
-    // Set up listeners
+    socket.emit('join-file-room', { roomId, name: username, userId });
+
     const onFileContent = (content: string) => setFileContent(content);
     const onPresenceUpdate = (users: any[]) => setUsers(users);
-    const onFileChanges = (changes: any) => {
+    const onFileChanges = (changes: any) =>
       setFileContent(prev => applyTextChanges(prev, changes));
-    };
 
     socket.on('file-content', onFileContent);
     socket.on('presence-update', onPresenceUpdate);
@@ -43,23 +42,21 @@ export default function FileEditPage({
       socket.off('file-content', onFileContent);
       socket.off('presence-update', onPresenceUpdate);
       socket.off('file-changes', onFileChanges);
-      socket.emit('leave-file-room', { 
-        roomId: `${username}/${repo}/${filepath}` 
-      });
+      socket.emit('leave-file-room', { roomId });
     };
   }, [socket, username, repo, filepath, userId]);
 
   const handleSave = () => {
-    socket?.emit('save-file', { 
+    socket?.emit('save-file', {
       roomId: `${username}/${repo}/${filepath}`,
-      content: fileContent
+      content: fileContent,
     });
   };
 
   const handleContentChange = (changes: any[]) => {
     socket?.emit('file-changes', {
       roomId: `${username}/${repo}/${filepath}`,
-      changes
+      changes,
     });
   };
 
@@ -69,18 +66,12 @@ export default function FileEditPage({
     <div className="flex flex-col h-screen bg-background">
       <header className="border-b border-border p-4 flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => redirect(`/${username}/${repo}`)}
-          >
+          <Button variant="ghost" size="icon" onClick={() => redirect(`/${username}/${repo}`)}>
             <Icons.chevronLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-lg font-medium">
-            Editing: {filepath}
-          </h1>
+          <h1 className="text-lg font-medium">Editing: {filepath}</h1>
         </div>
-        
+
         <div className="flex items-center gap-4">
           <UserPresence users={users} currentUserId={userId} />
           <Button onClick={handleSave}>
@@ -94,9 +85,10 @@ export default function FileEditPage({
         <CollabEditor
           roomId={`${username}/${repo}/${filepath}`}
           initialContent={fileContent}
-          language={getLanguageFromPath(filepath as string)}
-          userName={username as string}
+          language={getLanguageFromPath(filepath)}
+          userName={username}
           userId={userId}
+          onContentChange={handleContentChange}
         />
       </div>
 
@@ -110,20 +102,37 @@ export default function FileEditPage({
 
 function getLanguageFromPath(filepath: string): string {
   const extension = filepath.split('.').pop()?.toLowerCase() || '';
-  switch(extension) {
-    case 'js': return 'javascript';
-    case 'ts': return 'typescript';
-    case 'py': return 'python';
-    case 'md': return 'markdown';
-    default: return extension;
+  switch (extension) {
+    case 'js':
+      return 'javascript';
+    case 'ts':
+      return 'typescript';
+    case 'py':
+      return 'python';
+    case 'md':
+      return 'markdown';
+    default:
+      return extension;
   }
 }
 
+// Helper: extract params from Next.js useParams
+function extractParams(params: Record<string, any>): {
+  username: string;
+  repo: string;
+  filepath: string;
+} {
+  const username = decodeURIComponent(params.username as string);
+  const repo = decodeURIComponent(params.repo as string);
+  const filepathParts = params.filepath as string[] | undefined;
+  const filepath = decodeURIComponent(filepathParts?.join('/') || '');
+  return { username, repo, filepath };
+}
+
 function applyTextChanges(content: string, changes: any[]): string {
-  // Implement your text change application logic here
-  // This should handle the operational transformation
+  // Implement OT/CRDT logic if needed
   return changes.reduce((acc, change) => {
-    // Apply each change to the content
-    return acc; // Return modified content
+    // Placeholder logic
+    return acc;
   }, content);
 }

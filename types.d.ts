@@ -11,7 +11,7 @@ type ChartLayout =
 
 type CustomField = 'status' | 'label' | 'size' | 'priority';
 
-interface IUserLink {
+interface UserLink {
   id: string;
   label: string;
   url: string;
@@ -25,7 +25,7 @@ interface IUser {
   avatar: string;
   created_at: Date;
   updated_at: Date;
-  links: IUserLink[];
+  links: UserLink[];
   provider: 'google' | 'github' | 'email';
 }
 

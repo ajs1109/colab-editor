@@ -17,9 +17,10 @@ interface FileViewerProps {
     write: boolean;
     admin: boolean;
   };
+  refreshFiles: () => Promise<void>;
 }
 
-export function FileViewer({ file, repo, username, permissions }: FileViewerProps) {
+export function FileViewer({ file, repo, username, permissions, refreshFiles }: FileViewerProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [fileContent, setFileContent] = useState(file.content || '');
   
@@ -47,7 +48,7 @@ export function FileViewer({ file, repo, username, permissions }: FileViewerProp
 
   if (isEditing && permissions.write) {
     return (
-      <div className="bg-muted/10 border border-border rounded-lg overflow-hidden h-full">
+      <div className="bg-muted/10 border border-border rounded-lg overflow-hidden h-full min-h-[400px]">
         <EditorPanel 
           initialContent={fileContent}
           language={extension}
@@ -59,7 +60,7 @@ export function FileViewer({ file, repo, username, permissions }: FileViewerProp
   }
 
   return (
-    <div className="bg-muted/10 border border-border rounded-lg overflow-hidden">
+    <div className="bg-muted/10 border border-border rounded-lg overflow-hidden min-h-[300px]">
       <div className="flex items-center justify-between p-4 border-b border-border">
         {/* Breadcrumb navigation */}
         <div className="flex items-center gap-1 text-sm">
@@ -87,13 +88,11 @@ export function FileViewer({ file, repo, username, permissions }: FileViewerProp
             Copy
           </Button>
           {permissions.write && (
-            <Link 
-                href={`/${username}/${repo.name}/edit/${encodeURIComponent(file.path)}`}
-                className="px-3 py-1 bg-primary text-primary-foreground rounded hover:bg-primary/90"
-                >
-                <Icons.edit className="h-4 w-4 mr-2" />
-                Edit
-            </Link>
+            <Button variant='ghost' size="sm" className='gap-1'>
+              <Link href={`/${username}/${repo.name}/edit/${file.path}`} className='flex text-sm gap-2'>
+              <Icons.edit className="h-4 w-4" />
+              Edit</Link>
+            </Button>
           )}
           {permissions.write && (
             <Button variant="ghost" size="sm" className="gap-1 text-destructive">

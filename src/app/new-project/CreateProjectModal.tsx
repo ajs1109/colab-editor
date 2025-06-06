@@ -101,14 +101,7 @@ export const CreateProjectModal = ({ projectDetails }: Props) => {
 
       const projectData = {
         ...projectDetails,
-        ...(skipDefaultOptions
-          ? {}
-          : {
-              statuses,
-              sizes,
-              priorities,
-              labels,
-            }),
+        ...({}),
       };
 
       const project = await projects.management.create(

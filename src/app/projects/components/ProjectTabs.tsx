@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PanelsTopLeft, SquareKanban } from 'lucide-react';
 import SearchAndButton from '../Search';
 import { ProjectList } from '../ProjectList';
+import { useUserStore } from '@/stores/userStore';
 
 interface ProjectTabsProps {
   activeProjects: IProject[];
@@ -29,7 +30,13 @@ export const ProjectTabs = ({
   setProjectToClose,
   setProjectToReopen,
   setProjectToDelete,
-}: ProjectTabsProps) => (
+}: ProjectTabsProps) => {
+  const user = useUserStore((state) => state.user);
+  console.log('object', user);
+  if (!user) {
+    return <div className="p-4">Loading...</div>;
+  }
+  return (
   <Tabs defaultValue="active-projects">
     <TabsList className="bg-slate-100 dark:bg-slate-900 rounded-none">
       <TabsTrigger value="active-projects">
@@ -59,6 +66,7 @@ export const ProjectTabs = ({
         setProjectToClose={setProjectToClose}
         setProjectToReopen={setProjectToReopen}
         setProjectToDelete={setProjectToDelete}
+        user={user}
       />
     </TabsContent>
     <TabsContent value="closed-projects">
@@ -74,6 +82,7 @@ export const ProjectTabs = ({
         setProjectToClose={setProjectToClose}
         setProjectToReopen={setProjectToReopen}
         setProjectToDelete={setProjectToDelete}
+        user={user}
       />
     </TabsContent>
     <TabsContent value="all-projects">
@@ -89,7 +98,9 @@ export const ProjectTabs = ({
         setProjectToClose={setProjectToClose}
         setProjectToReopen={setProjectToReopen}
         setProjectToDelete={setProjectToDelete}
+        user={user}
       />
     </TabsContent>
   </Tabs>
 );
+}
