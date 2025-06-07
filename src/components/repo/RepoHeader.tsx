@@ -8,7 +8,7 @@ import Link from 'next/link';
 interface RepoHeaderProps {
   repo: Repository;
   owner: IUser;
-  currentUser?: User;
+  currentUser?: IUser;
   currentTab: 'code' | 'commits' | 'security' | 'settings';
   username: string;
   permissions: {

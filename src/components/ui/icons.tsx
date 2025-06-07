@@ -49,7 +49,8 @@ import {
   Loader,
   Save,
   User,
-  ChevronUp
+  ChevronUp,
+  Users
 } from 'lucide-react';
 
 export const Icons = {
@@ -106,5 +107,6 @@ export const Icons = {
   save: Save,
   user: User,
   chevronUp: ChevronUp,
-  arrowRight: ChevronRight
+  arrowRight: ChevronRight,
+  users: Users
 };

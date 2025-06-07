@@ -5,12 +5,19 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import CustomAvatar from "../ui/custom-avatar";
 import DateRangePicker from "../date-range-picker";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface CommitHistoryProps {
   commits: Commit[];
   repo: string;
   username: string;
   showFullHistory?: boolean;
+  members: IUser[];
 }
 
 export default function CommitHistory({
@@ -18,23 +25,46 @@ export default function CommitHistory({
   repo,
   username,
   showFullHistory = true,
+  members
 }: CommitHistoryProps) {
   return (
     <>
       {showFullHistory && (
-        <div className="flex items-center justify-between p-4 border-b border-border bg-muted/20 h-16">
-          <div className="flex items-center gap-4"></div>
-          <Button
-            variant="ghost"
-            className={`hover:bg-muted/50 ${showFullHistory ? "hidden" : ""}`}
-          >
-            <Icons.history className="mr-2 h-4 w-4" />
-            History {showFullHistory ? "Full" : "Recent"}
-          </Button>
-          {/* <DateRangePicker/> */}
+        <div className="flex items-center justify-between p-4 border-b border-border bg-muted/20 h-16 w-full">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="hover:bg-muted/50 flex items-center gap-2"
+              >
+                <Icons.history className="h-4 w-4" />
+                <span>View History</span>
+                <Icons.chevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56">
+              <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
+                <Icons.users className="h-4 w-4" />
+                <span>All Members</span>
+              </DropdownMenuItem>
+              {members.map((member) => (
+                <DropdownMenuItem 
+                  key={member.id} 
+                  className="cursor-pointer flex items-center gap-2"
+                >
+                  <CustomAvatar 
+                    url={{name: member.name, imageUrl: member.avatar}}
+                  />
+                  <span>{member.name}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DateRangePicker/>
         </div>
       )}
 
+      {/* Rest of your component remains the same */}
       <div className="divide-y divide-border">
         {commits.map((commit) => (
           <div

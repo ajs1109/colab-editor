@@ -132,8 +132,8 @@ const LandingPage: React.FC = () => {
             <Image
               src={
                 resolvedTheme === 'dark'
-                  ? '/colab-editor-dark.png'
-                  : '/colab-editor-light.png'
+                  ? '/colab-editor-dark.png.png'
+                  : '/colab-editor-dark.png'
               }
               alt="CoLab Editor interface showing real-time collaboration"
               width={1824}

@@ -10,8 +10,10 @@ export default async function CommitsPage({
   params: { username: string; repo: string };
   searchParams?: { page?: string };
 }) {
-  const page = searchParams?.page ? parseInt(searchParams.page) : 1;
-  const commitsResponse = await projects.getCommits(params.username, params.repo, page);
+  const { username, repo } = await params;
+  const searchParam = await searchParams;
+  const page = searchParam?.page ? parseInt(searchParam?.page) : 1;
+  const commitsResponse = await projects.getCommits(username, repo, page);
   const commitsData = await commitsResponse.json();
 
   if (!commitsData.commits) {
@@ -19,7 +21,7 @@ export default async function CommitsPage({
   }
 
   // Get basic repo info for the header
-  const repoResponse = await projects.getProject(params.username, params.repo);
+  const repoResponse = await projects.getProject(username, repo);
   const repoData = await repoResponse.json();
 
   return (
@@ -28,8 +30,9 @@ export default async function CommitsPage({
         <div className="mt-6">
           <CommitHistory 
             commits={commitsData.commits} 
-            repo={params.repo}
-            username={params.username}
+            repo={repo}
+            username={username}
+            members={repoData.repository.members}
           />
         </div>
       </div>

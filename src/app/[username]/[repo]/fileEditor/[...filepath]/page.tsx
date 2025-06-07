@@ -31,6 +31,79 @@ export default function EditPage() {
   const monacoRef = useRef<any>(null);
   const decorationsRef = useRef<string[]>([]);
   const { language, theme, fontSize, editor, setFontSize, setEditor } = useCodeEditorStore();
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  const saveFileChangesAndCreateCommit = async () => {
+    if (!socket || !username || !repo || !filepath || !editorRef.current) return;
+
+    setIsSaving(true);
+    setSaveStatus('idle');
+
+    try {
+      const content = editorRef.current.getValue();
+      const extension = filepath.split('.').pop() || '';
+      const fileName = filepath.split('/').pop() || filepath;
+
+      // 1. Create a new commit
+      const commitResponse = await fetch('/api/commits', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectName: repo,
+          message: `Updated ${filepath}`,
+          committerId: userId,
+          username,
+        }),
+      });
+
+      if (!commitResponse.ok) throw new Error('Failed to create commit');
+      const { commitId } = await commitResponse.json();
+
+      // 2. Save file changes
+      const changesResponse = await fetch('/api/file-changes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          commitId,
+          filePath: `/${filepath}`,
+          fileName,
+          fileType: 'file',
+          content,
+          changeType: fileContent ? 'modified' : 'added',
+          extension,
+          size: content.length,
+          username,
+          projectName: repo,
+        }),
+      });
+
+      if (!changesResponse.ok) 
+      {
+        console.log('failed to save changes: ', changesResponse);
+        throw new Error('Failed to save file changes');
+      }
+
+      // 3. Update local state
+      setFileContent(content);
+      setSaveStatus('success');
+      
+      // 4. Notify other collaborators
+      socket.emit('file-saved', {
+        roomId: `${username}/${repo}/${filepath}`,
+        content,
+        commitId,
+      });
+
+    } catch (error) {
+      console.error('Save error:', error);
+      setSaveStatus('error');
+    } finally {
+      setIsSaving(false);
+      setTimeout(() => setSaveStatus('idle'), 3000);
+    }
+  };
+
 
   // Set language based on file extension
   useEffect(() => {
@@ -265,7 +338,7 @@ export default function EditPage() {
                 </div>
               </div>
               <button
-                onClick={handleSave}
+                onClick={saveFileChangesAndCreateCommit}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg overflow-hidden bg-gradient-to-r from-blue-500 to-blue-600 opacity-90 hover:opacity-100 transition-opacity"
               >
                 <span className="text-sm font-medium text-white">Save</span>
@@ -285,7 +358,7 @@ export default function EditPage() {
                   </div>
                   <div>
                     <h2 className="text-sm font-medium text-white">Collaborative Editor</h2>
-                    <p className="text-xs text-gray-500">{users.length} user(s) editing</p>
+                    <p className="text-xs text-gray-500">{users.length > 0 ? users.length : 1} user(s) editing</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">

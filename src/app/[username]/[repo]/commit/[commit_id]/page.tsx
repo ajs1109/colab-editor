@@ -9,11 +9,12 @@ export default async function CommitPage({
 }: {
   params: { username: string; repo: string; commit_id: string };
 }) {
+  const { username, repo, commit_id } = await params;
   // Fetch commit details
   const commitResponse = await projects.getCommit(
-    params.username,
-    params.repo,
-    params.commit_id
+    username,
+    repo,
+    commit_id
   );
   
   if (!commitResponse.ok) {
@@ -32,8 +33,8 @@ export default async function CommitPage({
         <CommitDetails
           commit={commitData.commit}
           changes={commitData.changes}
-          repo={params.repo}
-          username={params.username}
+          repo={repo}
+          username={username}
           permissions={repoData.permissions}
         />
       </div>

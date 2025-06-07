@@ -94,7 +94,7 @@ export function FileEditPage() {
 
       <footer className="border-t border-border p-2 text-sm text-muted-foreground flex justify-between">
         <div>Connected: {socket?.connected ? 'Online' : 'Offline'}</div>
-        <div>{users.length} user(s) editing</div>
+        <div>{users.length > 0 ? users.length : 1} user(s) editing</div>
       </footer>
     </div>
   );
