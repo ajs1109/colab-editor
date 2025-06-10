@@ -11,9 +11,38 @@ export const createClient = () =>
 
 export const supabase = createClient();
 
-// API Response helpers
-export class ApiResponse {
-  static success<T>(data: T, message?: string) {
+// Enhanced API Response types
+export interface ApiSuccessResponse<T> {
+  success: true;
+  data: T;
+  message: string;
+}
+
+export interface ApiErrorResponse {
+  success: false;
+  error: {
+    code: string;
+    message: string;
+    details?: any;
+  };
+}
+
+export interface ApiPaginatedResponse<T> {
+  success: true;
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
+export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
+
+// API Response helpers with fixed return types
+export class ApiResponseHelper {
+  static success<T>(data: T, message?: string): ApiSuccessResponse<T> {
     return {
       success: true,
       data,
@@ -21,7 +50,7 @@ export class ApiResponse {
     };
   }
 
-  static error(message: string, code: string = 'GENERIC_ERROR', details?: any) {
+  static error(message: string, code: string = 'GENERIC_ERROR', details?: any): ApiErrorResponse {
     return {
       success: false,
       error: {
@@ -32,7 +61,7 @@ export class ApiResponse {
     };
   }
 
-  static paginated<T>(data: T[], page: number, limit: number, total: number) {
+  static paginated<T>(data: T[], page: number, limit: number, total: number): ApiPaginatedResponse<T> {
     return {
       success: true,
       data,
@@ -45,7 +74,6 @@ export class ApiResponse {
     };
   }
 }
-
 
 // Authentication helpers
 export class AuthService {
@@ -68,7 +96,7 @@ export class AuthService {
   static async requireAuth(req: NextApiRequest, res: NextApiResponse): Promise<User | null> {
     const user = await this.getCurrentUser(req);
     if (!user) {
-      res.status(401).json(ApiResponse.error('Authentication required', 'UNAUTHORIZED'));
+      res.status(401).json(ApiResponseHelper.error('Authentication required', 'UNAUTHORIZED'));
       return null;
     }
     return user;
@@ -179,7 +207,7 @@ export class PermissionService {
     const permissions = await this.getUserRepositoryPermissions(user.id, repositoryId);
     
     if (!this.hasPermission(permissions.access_level || 'read', requiredLevel)) {
-      res.status(403).json(ApiResponse.error('Insufficient permissions', 'FORBIDDEN'));
+      res.status(403).json(ApiResponseHelper.error('Insufficient permissions', 'FORBIDDEN'));
       return null;
     }
 
@@ -501,6 +529,55 @@ export class IssueService {
   }
 }
 
+// Enhanced User Service with typed responses
+export class UserService {
+  static async getUserIdByName(username: string): Promise<ApiResponse<string>> {
+    const supabase = createClient();
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("id")
+      .eq("name", username)
+      .single();
+    
+    if (userError || !userData) {
+      return ApiResponseHelper.error("Couldn't fetch user id", userError?.code || 'USER_NOT_FOUND', userError);
+    }
+    
+    return ApiResponseHelper.success(userData.id, "Successfully fetched user id");
+  }
+
+  static async getUserById(id: string): Promise<ApiResponse<User>> {
+    const supabase = createClient();
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", id)
+      .single();
+    
+    if (userError || !userData) {
+      return ApiResponseHelper.error("User not found", userError?.code || 'USER_NOT_FOUND', userError);
+    }
+    
+    return ApiResponseHelper.success(userData, "Successfully fetched user");
+  }
+
+  static async updateUser(id: string, updates: Partial<User>): Promise<ApiResponse<User>> {
+    const supabase = createClient();
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .update(updates)
+      .eq("id", id)
+      .select("*")
+      .single();
+    
+    if (userError || !userData) {
+      return ApiResponseHelper.error("Failed to update user", userError?.code || 'UPDATE_FAILED', userError);
+    }
+    
+    return ApiResponseHelper.success(userData, "User updated successfully");
+  }
+}
+
 // Validation helpers
 export class ValidationService {
   static validateRepositoryName(name: string): boolean {
@@ -548,12 +625,21 @@ export function handleApiError(error: any, res: NextApiResponse) {
   console.error('API Error:', error);
   
   if (error.code === '23505') { // Unique constraint violation
-    return res.status(409).json(ApiResponse.error('Resource already exists', 'CONFLICT'));
+    return res.status(409).json(ApiResponseHelper.error('Resource already exists', 'CONFLICT'));
   }
   
   if (error.code === '23503') { // Foreign key violation
-    return res.status(400).json(ApiResponse.error('Referenced resource not found', 'INVALID_REFERENCE'));
+    return res.status(400).json(ApiResponseHelper.error('Referenced resource not found', 'INVALID_REFERENCE'));
   }
   
-  return res.status(500).json(ApiResponse.error('Internal server error', 'INTERNAL_ERROR'));
+  return res.status(500).json(ApiResponseHelper.error('Internal server error', 'INTERNAL_ERROR'));
+}
+
+// Type guard utilities for better type safety
+export function isApiSuccess<T>(response: ApiResponse<T>): response is ApiSuccessResponse<T> {
+  return response.success === true;
+}
+
+export function isApiError<T>(response: ApiResponse<T>): response is ApiErrorResponse {
+  return response.success === false;
 }

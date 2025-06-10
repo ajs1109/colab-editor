@@ -3,6 +3,7 @@ import { CommitDetails } from '@/components/repo/CommitDetails';
 import { projects } from '@/utils/projects';
 import RepositoryLayout from '../../repoLayout';
 import { notFound } from 'next/navigation';
+import { getCommit } from '@/utils/supabase/functions/projects';
 
 export default async function CommitPage({
   params,
@@ -11,7 +12,7 @@ export default async function CommitPage({
 }) {
   const { username, repo, commit_id } = await params;
   // Fetch commit details
-  const commitResponse = await projects.getCommit(
+  const commitResponse = await getCommit(
     username,
     repo,
     commit_id
@@ -22,6 +23,7 @@ export default async function CommitPage({
   }
 
   const commitData = await commitResponse.json();
+  console.log('commit data:', commitData);
 
   // Fetch basic repo info for the header
   const repoResponse = await projects.getProject(params.username, params.repo);

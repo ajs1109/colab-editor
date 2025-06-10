@@ -4,7 +4,7 @@ import { File } from "@/types/project";
 import { Icons } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import SyntaxHighlighter from "react-syntax-highlighter";
-import { atomOneDark } from "react-syntax-highlighter/dist/cjs/styles/hljs";
+//import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import Link from "next/link";
 import { EditorPanel } from "./EditorPanel";
 import { useState } from "react";
@@ -148,19 +148,9 @@ export function FileViewer({
       </div>
 
       <div className="p-0">
-        {extension === "js" || extension === "javascript" ? (
-          <div className="p-4">
-            {/* <div className="mb-4">
-              <h3 className="text-lg font-medium mb-2">Code Output:</h3>
-              <div className="bg-background p-4 rounded-md">
-                <pre className="text-sm">
-                  {formattedContent}
-                </pre>
-              </div>
-            </div> */}
             <SyntaxHighlighter
               language={extension}
-              style={atomOneDark}
+              //style={atomOneDark}
               showLineNumbers
               customStyle={{
                 margin: 0,
@@ -169,24 +159,8 @@ export function FileViewer({
                 padding: "2rem",
               }}
             >
-              {fileContent}
+              {file.content ?? ''}
             </SyntaxHighlighter>
-          </div>
-        ) : (
-          <SyntaxHighlighter
-            language={extension}
-            style={atomOneDark}
-            showLineNumbers
-            customStyle={{
-              margin: 0,
-              borderRadius: 0,
-              background: "rgba(240, 246, 252, 0.01)",
-              padding: "2rem",
-            }}
-          >
-            {fileContent}
-          </SyntaxHighlighter>
-        )}
       </div>
     </div>
   );

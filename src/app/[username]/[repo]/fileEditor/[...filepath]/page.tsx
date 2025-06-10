@@ -17,11 +17,11 @@ interface User {
   position?: any;
 }
 
-export default function EditPage() {
+export default function EditPage({ username, repo, filepath, file}: { username: string, repo: string, filepath: string, file: string}) {
   const params = useParams();
-  const { username, repo, filepath } = extractParams(params);
+  //const { username, repo, filepath } = extractParams(params);
   
-  const [fileContent, setFileContent] = useState('');
+  const [fileContent, setFileContent] = useState(file);
   const [users, setUsers] = useState<User[]>([]);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
@@ -274,7 +274,7 @@ export default function EditPage() {
     const defaultCode = LANGUAGE_CONFIG[language].defaultCode;
     if (editorRef.current) editorRef.current.setValue(defaultCode);
     localStorage.removeItem(`editor-code-${language}`);
-    setFileContent(defaultCode);
+    setFileContent(file);
   };
 
   const handleFontSizeChange = (newSize: number) => {

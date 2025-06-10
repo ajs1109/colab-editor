@@ -2,6 +2,8 @@
 
 import { NextResponse } from "next/server";
 import { createClient } from "../server";
+import { getProjectIdByUsernameAndRepoName, getUserIdByName } from ".";
+import { ApiResponse, ApiResponseHelper, isApiError, supabase } from "@/lib/apiClient";
 
 export const createProject = async (
   projectData: ProjectWithOptions,
@@ -173,6 +175,7 @@ export const getAllmembers = async (projectId: string) => {
   if (error) throw error;
   return (data as any[]).map((m) => m.user) as IUser[];
 };
+
 export const getProjectOwner = async (projectId: string) => {
   const supabase = await createClient();
 
@@ -873,4 +876,14 @@ export async function saveFileChangesAndCreateCommit({
       { status: 500 }
     );
   }
+}
+
+export async function getFile({ username, repo, path }: { username: string, repo: string, path: string }): Promise<ApiResponse<string>>{
+  const projectData = await getProjectIdByUsernameAndRepoName(username, repo);
+  if(isApiError(projectData)) return ApiResponseHelper.error(projectData.error.message, projectData.error.code, projectData.error.details);
+  
+  const { data: fileData, error: fileError } = await supabase.from('file_tree').select('content').eq('path', path).eq('project_id', projectData.data).single();
+  if(fileError) return ApiResponseHelper.error(fileError.message, fileError.code, fileError.details);
+  
+  return ApiResponseHelper.success(fileData.content);
 }

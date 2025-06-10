@@ -22,7 +22,8 @@ export default function RepositoryLayout({
     if (pathname?.endsWith('/commits')) return 'commits';
     if (pathname?.endsWith('/security')) return 'security';
     if (pathname?.endsWith('/settings')) return 'settings';
-    return 'code';
+    if(pathname?.endsWith(`/${repoData.repository.name}`)) return 'code';
+    return 'security';
   }, [pathname]);
 
   // Extract username from URL

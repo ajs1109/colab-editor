@@ -83,7 +83,7 @@ export default function FileChanges({ changes, repo, username, commitId }: FileC
 // Helper functions
 function shouldShowDiff(change: FileChange): boolean {
   return (
-    (change.change_type === 'modified' && !!change.old_content && !!change.new_content) ||
+    (change.change_type === 'modified') ||
     (change.change_type === 'added' && !!change.new_content) ||
     (change.change_type === 'deleted' && !!change.old_content)
   );
