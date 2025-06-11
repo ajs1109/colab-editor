@@ -38,7 +38,7 @@ export const ProjectTabs = ({
   }
   return (
   <Tabs defaultValue="active-projects">
-    <TabsList className="bg-slate-100 dark:bg-slate-900 rounded-none">
+    <TabsList className="bg-slate-100 dark:bg-gray-900 rounded-none">
       <TabsTrigger value="active-projects">
         <PanelsTopLeft className="w-4 h-4 mr-2" />
         <span>Active Projects</span>

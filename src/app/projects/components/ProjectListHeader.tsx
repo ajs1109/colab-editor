@@ -21,7 +21,7 @@ export const ProjectListHeader = ({
   sortOrder,
   onSort,
 }: ProjectListHeaderProps) => (
-  <div className="flex justify-between items-center bg-slate-100 dark:bg-slate-900 p-6">
+  <div className="flex justify-between items-center bg-slate-100 dark:bg-gray-900 p-6">
     <div>
       <span className="text-sm">
         {tab === 'active' && `Active Projects(${count})`}

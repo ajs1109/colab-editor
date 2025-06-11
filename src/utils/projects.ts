@@ -17,6 +17,7 @@ export const projects = {
             created_by: userId,
             updated_at: new Date(),
             closed: false,
+            is_public: projectData.is_public
           })
           .select()
           .single();

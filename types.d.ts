@@ -164,10 +164,7 @@ type ProjectWithOptions = {
   name: string;
   description: string;
   readme: string;
-  statuses?: Omit<IStatus, 'created_at' | 'updated_at'>[];
-  labels?: Omit<ILabel, 'created_at' | 'updated_at'>[];
-  priorities?: Omit<IPriority, 'created_at' | 'updated_at'>[];
-  sizes?: Omit<ISize, 'created_at' | 'updated_at'>[];
+  is_public: boolean;
 };
 
 interface MemberWithUser extends IProjectMember {
