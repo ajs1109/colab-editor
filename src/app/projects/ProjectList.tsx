@@ -12,6 +12,7 @@ interface ProjectListProps {
   setProjectToClose?: (id: string) => void;
   setProjectToReopen?: (id: string) => void;
   setProjectToDelete?: (project: IProject) => void;
+  user: IUser;
 }
 
 export const ProjectList = ({
@@ -22,6 +23,7 @@ export const ProjectList = ({
   setProjectToClose,
   setProjectToReopen,
   setProjectToDelete,
+  user
 }: ProjectListProps) => {
   if (projects.length === 0) {
     return <EmptyProjectList tab={tab} />;
@@ -40,6 +42,7 @@ export const ProjectList = ({
           <ProjectItem
             key={project.id}
             project={project}
+            user={user}
             tab={tab}
             setProjectToClose={setProjectToClose}
             setProjectToReopen={setProjectToReopen}

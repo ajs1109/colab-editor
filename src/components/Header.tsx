@@ -10,6 +10,8 @@ import { createClient } from '@/lib/apiClient';
 import type { User } from '@supabase/supabase-js';
 import { usePathname } from 'next/navigation';
 import { useAccessStore } from '@/stores/useAccessStore';
+import { useUserStore } from '@/stores/userStore';
+import { users } from '@/utils/users';
 
 interface HeaderProps {
   className?: string;
@@ -20,37 +22,72 @@ const supabase = createClient();
 export const Header = ({ className }: HeaderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isHydrated, setIsHydrated] = useState(false);
   const pathname = usePathname();
   const isLandingPage = pathname === '/';
 
+  const setIUser = useUserStore((state) => state.setUser);
+
+  // Handle hydration
   useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+    const initializeAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const authUser = session?.user ?? null;
+      setUser(authUser);
+      
+      if (authUser) {
+        try {
+          const userData = await users.getUser(authUser.id);
+          setIUser(userData);
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      }
+      
       setIsLoading(false);
-    });
+    };
+
+    initializeAuth();
 
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const authUser = session?.user ?? null;
+      setUser(authUser);
+
       if (!session) {
         useAccessStore.getState().reset(); // Reset when session ends
+        setIUser(null); // Clear user store
+      } else if (authUser) {
+        try {
+          const userData = await users.getUser(authUser.id);
+          setIUser(userData);
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
       }
-      setUser(session?.user ?? null);
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [isHydrated, setIUser]);
 
-  if (isLoading) {
+  // Don't render anything until hydrated
+  if (!isHydrated || isLoading) {
     return null; // or a loading spinner
   }
 
   return (
     <header
       className={cn(
-        'fixed top-0 w-full z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60',
+        'fixed top-0 w-full z-50 border-b-2 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60',
         className
       )}
     >

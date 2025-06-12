@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from 'react';
-import Editor, { Monaco } from '@monaco-editor/react';
-import { useSocket } from '@/lib/socket';
+import { useEffect, useRef, useState } from "react";
+import Editor, { Monaco } from "@monaco-editor/react";
+import { useSocket } from "@/lib/socket";
 
 interface CollabEditorProps {
   roomId: string;
@@ -10,6 +10,7 @@ interface CollabEditorProps {
   language: string;
   userName: string;
   userId: string;
+  onContentChange?: (changes: any[]) => void;
 }
 
 export function CollabEditor({
@@ -18,6 +19,7 @@ export function CollabEditor({
   language,
   userName,
   userId,
+  onContentChange,
 }: CollabEditorProps) {
   const [content, setContent] = useState(initialContent);
   const [users, setUsers] = useState<any[]>([]);
@@ -40,7 +42,7 @@ export function CollabEditor({
       const model = editorRef.current.getModel();
       model.pushEditOperations(
         [],
-        changes.map(change => ({
+        changes.map((change) => ({
           range: new monacoRef.current!.Range(
             change.range.startLineNumber,
             change.range.startColumn,
@@ -53,12 +55,12 @@ export function CollabEditor({
       );
     };
 
-    socket.on('presence-update', onPresenceUpdate);
-    socket.on('file-changes', onFileChanges);
+    socket.on("presence-update", onPresenceUpdate);
+    socket.on("file-changes", onFileChanges);
 
     return () => {
-      socket.off('presence-update', onPresenceUpdate);
-      socket.off('file-changes', onFileChanges);
+      socket.off("presence-update", onPresenceUpdate);
+      socket.off("file-changes", onFileChanges);
     };
   }, [socket]);
 
@@ -66,8 +68,8 @@ export function CollabEditor({
     if (!editorRef.current || !monacoRef.current) return;
 
     const decorations = users
-      .filter(user => user.id !== userId)
-      .map(user => ({
+      .filter((user) => user.id !== userId)
+      .map((user) => ({
         range: new monacoRef.current!.Range(
           user.position.lineNumber,
           user.position.column,
@@ -80,7 +82,7 @@ export function CollabEditor({
           hoverMessage: {
             value: `**${user.name}** is editing`,
           },
-        }
+        },
       }));
 
     decorationsRef.current = editorRef.current.deltaDecorations(
@@ -94,21 +96,21 @@ export function CollabEditor({
     monacoRef.current = monaco;
 
     // Define theme first
-    monaco.editor.defineTheme('collaborative', {
-      base: 'vs-dark',
+    monaco.editor.defineTheme("collaborative", {
+      base: "vs-dark",
       inherit: true,
       rules: [],
       colors: {
-        'editor.background': '#1e1e2e',
+        "editor.background": "#1e1e2e",
       },
     });
 
     // Then set theme
-    monaco.editor.setTheme('collaborative');
+    monaco.editor.setTheme("collaborative");
 
     // Track cursor movements
     editor.onDidChangeCursorPosition((e: any) => {
-      socket?.emit('cursor-update', {
+      socket?.emit("cursor-update", {
         roomId,
         userId,
         position: e.position,
@@ -117,7 +119,7 @@ export function CollabEditor({
     });
 
     editor.onDidChangeCursorSelection((e: any) => {
-      socket?.emit('cursor-update', {
+      socket?.emit("cursor-update", {
         roomId,
         userId,
         position: e.position,
@@ -129,19 +131,25 @@ export function CollabEditor({
   const handleEditorChange = (value: string | undefined) => {
     if (value !== undefined) {
       setContent(value);
-      // In a real implementation, you would calculate the specific changes
-      socket?.emit('file-changes', {
-        roomId,
-        changes: [{
+
+      const lines = value.split("\n");
+      const changes = [
+        {
           range: {
             startLineNumber: 1,
             startColumn: 1,
-            endLineNumber: value.split('\n').length,
-            endColumn: value.split('\n').pop()?.length || 1,
+            endLineNumber: lines.length,
+            endColumn: lines[lines.length - 1]?.length + 1 || 1,
           },
           text: value,
-        }],
-      });
+        },
+      ];
+
+      // Emit to socket
+      socket?.emit("file-changes", { roomId, changes });
+
+      // Call parent handler
+      onContentChange?.(changes);
     }
   };
 
@@ -157,14 +165,14 @@ export function CollabEditor({
         options={{
           minimap: { enabled: false },
           fontSize: 14,
-          wordWrap: 'on',
+          wordWrap: "on",
           automaticLayout: true,
-          renderWhitespace: 'selection',
+          renderWhitespace: "selection",
           scrollBeyondLastLine: false,
           fontFamily: "'Fira Code', monospace",
           fontLigatures: true,
-          cursorBlinking: 'smooth',
-          cursorSmoothCaretAnimation: 'on',
+          cursorBlinking: "smooth",
+          cursorSmoothCaretAnimation: "on",
           lineNumbersMinChars: 3,
           padding: { top: 16, bottom: 16 },
         }}

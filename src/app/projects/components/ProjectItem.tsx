@@ -8,6 +8,7 @@ import { ProjectAction } from '@/constants';
 
 interface ProjectItemProps {
   project: IProject;
+  user: IUser;
   tab: 'active' | 'all' | 'closed';
   setProjectToClose?: (id: string) => void;
   setProjectToReopen?: (id: string) => void;
@@ -17,6 +18,7 @@ interface ProjectItemProps {
 export const ProjectItem = ({
   project,
   tab,
+  user,
   setProjectToClose,
   setProjectToReopen,
   setProjectToDelete,
@@ -32,7 +34,7 @@ export const ProjectItem = ({
               {project.name}
             </h1>
           ) : (
-            <Link href={`/projects/${project.id}`}>
+            <Link href={`/${user.name}/${project.name}`}>
               <h1 className="text-lg font-semibold">{project.name}</h1>
             </Link>
           )}

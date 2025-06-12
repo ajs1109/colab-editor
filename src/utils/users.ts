@@ -56,7 +56,6 @@ export const users = {
     const newUser: Partial<IUser> = {
       id: authUser.id,
       email: authUser.email!,
-      name: authUser.user_metadata.full_name || authUser.email!.split('@')[0],
       avatar: authUser.user_metadata.avatar_url || '',
       description: '',
       provider,

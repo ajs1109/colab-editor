@@ -22,6 +22,7 @@ export const Projects = ({
   const { toast } = useToast();
 
   const filteredProjects = useMemo(() => {
+    console.log(availableProjects);
     return availableProjects
       .filter((project) => {
         const searchLower = searchTerm.toLowerCase();
