@@ -61,7 +61,7 @@ A real-time, GitHub-like collaborative code editor built with **Next.js**, **Sup
 
 ## 🌐 Live Demo
 
-🔗 [collab-editor.example.com](https://collab-editor.example.com)
+🔗 [collab-editor.example.com](https://colab-editor.vercel.app)
 
 > Replace this link with your actual deployed URL.
 
