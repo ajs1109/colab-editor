@@ -1,7 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// paths that don't require authentication
 const publicPaths = [
   "/", // Landing page
   "/login", // Auth pages
@@ -10,7 +9,7 @@ const publicPaths = [
   "/auth/callback",
   "/auth/reset-password",
   "/auth/auth-error",
-  "/profile/:id", // Public profile pages - using path pattern
+  "/profile/:id", 
 ];
 
 const authRequiredPaths = [
@@ -46,8 +45,8 @@ export async function updateSession(request: NextRequest) {
   );
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const currentPath = request.nextUrl.pathname;
   const nextPath =
@@ -55,27 +54,24 @@ export async function updateSession(request: NextRequest) {
       ? request.nextUrl.searchParams.get("next") || "/" // Default to landing page
       : currentPath;
 
-  // Check if the current path matches any public path pattern
   const isPublicPath = publicPaths.some((path) => {
-    // Convert path pattern to regex
     const pattern = path.replace(":id", "[^/]+");
     const regex = new RegExp(`^${pattern}$`);
     return regex.test(currentPath) && !authRequiredPaths.includes(currentPath);
   });
 
-  if (!session && !isPublicPath) {
-    // no user, redirect to login page with current path as next
+  if (!user && !isPublicPath) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", currentPath);
     return NextResponse.redirect(url);
   }
 
-  if (session) {
+  if (user) {
     const { data: username, error: usernameError } = await supabase
       .from("users")
       .select("name")
-      .eq("id", session.user.id)
+      .eq("id", user.id)
       .single();
 
     if (usernameError) {
@@ -104,10 +100,7 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  if (
-    session &&
-    (currentPath === "/login" || currentPath === "/create-account")
-  ) {
+  if (user && (currentPath === "/login" || currentPath === "/create-account")) {
     // For logged in users trying to access auth pages, redirect to the next path
     const url = new URL(nextPath, request.url);
     return NextResponse.redirect(url);

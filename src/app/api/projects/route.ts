@@ -1,5 +1,4 @@
 import { supabase } from "@/lib/apiClient";
-import { getProject } from "@/utils/supabase/functions/projects";
 import { NextRequest, NextResponse } from "next/server";
 
 

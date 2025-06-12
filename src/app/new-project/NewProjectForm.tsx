@@ -6,14 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useState, useEffect } from "react";
-import { CreateProjectModal } from "./CreateProjectModal";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/apiClient";
-import { projects } from "@/utils/projects";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { successBtnStyles } from "../commonStyles";
 import { cn } from "@/lib/utils";
+import { createProject } from "@/utils/supabase/functions/projects";
 
 interface ValidateProjectNameProps {
   valid: boolean;
@@ -182,7 +181,7 @@ export function NewProjectForm() {
         is_public: visibility === "public",
       };
 
-      const project = await projects.management.create(
+      const project = await createProject(
         projectData as ProjectWithOptions,
         session.user.id
       );

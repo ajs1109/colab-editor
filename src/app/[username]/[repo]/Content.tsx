@@ -5,8 +5,6 @@ import { FileExplorer } from "@/components/repo/FileExplorer";
 import { FileViewer } from "@/components/repo/FileViewer";
 import { Icons } from "@/components/ui/icons";
 import { useState } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { projects } from "@/utils/projects";
 import { getProject } from "@/utils/supabase/functions/projects";
 import { File } from "@/types/project";
 
@@ -65,7 +63,7 @@ export default function Content({
             refreshFiles={refreshFiles}
           />
         ) : (
-          <div className="flex items-center justify-center h-64 bg-muted/10 rounded-lg border border-border">
+          <div className="flex items-center justify-center h-80 bg-muted/10 rounded-lg border border-border">
             <div className="text-center text-muted-foreground">
               <Icons.file className="mx-auto h-8 w-8 mb-2" />
               <p>Select a file to view</p>

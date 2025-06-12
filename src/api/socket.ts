@@ -1,6 +1,6 @@
 // pages/api/socket.ts
 import { Server } from 'socket.io';
-import type { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiRequest } from 'next';
 import { NextApiResponseWithSocket, CursorPosition, SelectionRange } from '@/types/socket';
 
 // Track rooms and users

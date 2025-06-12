@@ -332,12 +332,6 @@ export function FileExplorer({
             <p className="text-sm text-muted-foreground mb-4">
               {permissions.write ? "Create your first file or folder" : "No files available"}
             </p>
-            {permissions.write && (
-              <Button onClick={() => setIsCreateOpen(true)} size="sm">
-                <Icons.plus className="h-4 w-4 mr-2" />
-                Create new
-              </Button>
-            )}
           </div>
         ) : (
           <div className="divide-y divide-border">
@@ -387,43 +381,6 @@ export function FileExplorer({
         )}
       </ScrollArea>
 
-      {/* Create new file/folder dialog */}
-      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create New {isDirectory ? "Folder" : "File"}</DialogTitle>
-            <DialogDescription>
-              {currentPath ? `In ${currentPath}` : `In root directory`}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder={`Enter ${isDirectory ? "folder" : "file"} name`}
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-            />
-            <div className="flex items-center gap-2">
-              <button
-                className={`px-3 py-1 rounded text-sm ${!isDirectory ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
-                onClick={() => setIsDirectory(false)}
-              >
-                File
-              </button>
-              <button
-                className={`px-3 py-1 rounded text-sm ${isDirectory ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
-                onClick={() => setIsDirectory(true)}
-              >
-                Folder
-              </button>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button onClick={handleCreate} disabled={isLoading}>
-              {isLoading ? "Creating..." : "Create"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Rename dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>

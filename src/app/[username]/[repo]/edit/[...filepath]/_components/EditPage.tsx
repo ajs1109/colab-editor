@@ -1,14 +1,15 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import { useParams, redirect } from 'next/navigation';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import { defineMonacoThemes } from '@/constants/editor-theme';
 import { useSocket } from '@/lib/socket';
-import { Blocks, RotateCcw, Share, Terminal, AlertTriangle, CheckCircle, Clock, Copy, Type } from 'lucide-react';
-import { motion } from 'framer-motion';
-import Image from 'next/image';
 import { useCodeEditorStore } from '@/stores/useCodeEditorStore';
-import { defineMonacoThemes, LANGUAGE_CONFIG } from '@/constants/editor-theme';
 import { Editor } from '@monaco-editor/react';
+import { motion } from 'framer-motion';
+import { Blocks, RotateCcw, Type } from 'lucide-react';
+import Image from 'next/image';
+import { redirect } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 
 interface User {
   id: string;
@@ -18,13 +19,11 @@ interface User {
 }
 
 export default function EditPage({ username, repo, filepath, file}: { username: string, repo: string, filepath: string, file: string}) {
-  const params = useParams();
-  //const { username, repo, filepath } = extractParams(params);
-  
+
   const [fileContent, setFileContent] = useState(file);
   const [users, setUsers] = useState<User[]>([]);
-  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  const [isRefreshDialogOpen, setIsRefreshDialogOpen] = useState(false);
   const socket = useSocket();
   const userId = socket?.id || '';
   const editorRef = useRef<any>(null);
@@ -103,7 +102,6 @@ export default function EditPage({ username, repo, filepath, file}: { username: 
       setTimeout(() => setSaveStatus('idle'), 3000);
     }
   };
-
 
   // Set language based on file extension
   useEffect(() => {
@@ -221,16 +219,15 @@ export default function EditPage({ username, repo, filepath, file}: { username: 
   };
 
   const handleContentChange = (value: string | undefined) => {
-    if (value !== undefined) {
+    if (value !== undefined && value !== null) {
       setFileContent(value);
-      localStorage.setItem(`editor-code-${language}`, value);
 
       const changes = [{
         range: {
           startLineNumber: 1,
           startColumn: 1,
           endLineNumber: value.split('\n').length,
-          endColumn: value.split('\n').pop()?.length + 1 || 1,
+          endColumn: (value.split('\n').pop()?.length ?? 0) + 1
         },
         text: value,
       }];
@@ -270,17 +267,13 @@ export default function EditPage({ username, repo, filepath, file}: { username: 
   };
 
   const handleRefresh = () => {
-  console.log('into');
-    const defaultCode = LANGUAGE_CONFIG[language].defaultCode;
-    if (editorRef.current) editorRef.current.setValue(defaultCode);
-    localStorage.removeItem(`editor-code-${language}`);
+    console.log('into');
     setFileContent(file);
   };
 
   const handleFontSizeChange = (newSize: number) => {
     const size = Math.min(Math.max(newSize, 12), 24);
     setFontSize(size);
-    localStorage.setItem('editor-font-size', size.toString());
   };
 
   const handleCopy = async () => {
@@ -324,6 +317,7 @@ export default function EditPage({ username, repo, filepath, file}: { username: 
                   <Type className="size-4 text-gray-400" />
                   <div className="flex items-center gap-3">
                     <input
+                      placeholder='Font Size'
                       type="range"
                       min="12"
                       max="24"
@@ -347,7 +341,6 @@ export default function EditPage({ username, repo, filepath, file}: { username: 
           </div>
         </div>
 
-        {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-4"> */}
           {/* Editor Panel */}
           <div className="relative">
             <div className="relative bg-[#12121a]/90 backdrop-blur rounded-xl border border-white/[0.05] p-6">
@@ -365,7 +358,7 @@ export default function EditPage({ username, repo, filepath, file}: { username: 
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={handleRefresh}
+                    onClick={() => setIsRefreshDialogOpen(true)}
                     className="p-2 bg-[#1e1e2e] hover:bg-[#2a2a3a] rounded-lg ring-1 ring-white/5 transition-colors"
                   >
                     <RotateCcw className="size-4 text-gray-400" />
@@ -455,18 +448,15 @@ export default function EditPage({ username, repo, filepath, file}: { username: 
           </div> */}
         {/* </div> */}
       </div>
+
+      <ConfirmDialog
+        open={isRefreshDialogOpen}
+        onOpenChange={setIsRefreshDialogOpen}
+        onConfirm={handleRefresh}
+        title="Confirm Refresh"
+        description="Are you sure you want to refresh? This will reload the file content and any unsaved changes may be lost."
+        confirmText="Refresh"
+        />
     </div>
   );
-}
-
-function extractParams(params: Record<string, any>): {
-  username: string;
-  repo: string;
-  filepath: string;
-} {
-  const username = decodeURIComponent(params.username as string);
-  const repo = decodeURIComponent(params.repo as string);
-  const filepathParts = params.filepath as string[] | undefined;
-  const filepath = decodeURIComponent(filepathParts?.join('/') || '');
-  return { username, repo, filepath };
 }
