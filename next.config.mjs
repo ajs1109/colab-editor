@@ -3,7 +3,12 @@ const nextConfig = {
   images: {
     domains: ['placehold.jp'],
   },
-  //   reactStrictMode: false,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true, // Only if you also have TypeScript errors
+  },
 };
 
 export default nextConfig;

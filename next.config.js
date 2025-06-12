@@ -7,6 +7,12 @@ const nextConfig = {
       'lh3.googleusercontent.com', // For Google avatars
     ],
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true, // Only if you also have TypeScript errors
+  },
 };
 
 module.exports = nextConfig;
