@@ -19,6 +19,7 @@ jobs:
       NEXT_PUBLIC_SUPABASE_URL: https://ci-placeholder.supabase.co
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
       NEXT_PUBLIC_SUPABASE_STORAGE_URL: https://ci-placeholder.supabase.co/storage/v1/object/public
+      RESEND_API_KEY: re_ci_placeholder
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
