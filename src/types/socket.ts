@@ -1,16 +1,7 @@
 // types/socket.ts
-import { NextApiResponse } from 'next';
-import { Server } from 'socket.io';
 import { AccessLevel, AuthProvider, ChangeType, OperationType } from '.';
 import { Repository, User } from './project';
 
-export type NextApiResponseWithSocket = NextApiResponse & {
-  socket: {
-    server: {
-      io?: Server;
-    } & Partial<Server>;
-  };
-};
 export interface CursorPosition {
   lineNumber: number;
   column: number;

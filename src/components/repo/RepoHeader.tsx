@@ -2,7 +2,7 @@
 import { Repository, User } from '@/types/project';
 import { Icons } from '@/components/ui/icons';
 import { format } from 'date-fns';
-import { type Avatar, AvatarCircles } from '../magicui/avatar-circles';
+import { type AvatarType as Avatar, AvatarCircles } from '../magicui/avatar-circles';
 import Link from 'next/link';
 
 interface RepoHeaderProps {

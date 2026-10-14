@@ -4,8 +4,8 @@
 import { FileExplorer } from "@/components/repo/FileExplorer";
 import { FileViewer } from "@/components/repo/FileViewer";
 import { Icons } from "@/components/ui/icons";
-import { useState } from "react";
-import { getProject } from "@/utils/supabase/functions/projects";
+import { useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { File } from "@/types/project";
 
 export default function Content({
@@ -19,41 +19,38 @@ export default function Content({
   repo: any;
   username: string;
 }) {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const router = useRouter();
+  const [selectedPath, setSelectedPath] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [filesList, setFilesList] = useState(files);
+  const [isRefreshing, startRefresh] = useTransition();
 
+  // Re-render the server page so `files` reflects the latest commit.
   const refreshFiles = async () => {
-    setIsLoading(true);
-    try {
-      const response = await getProject(username, repo.name);
-      const data = await response.json();
-      console.log('frontend data:', data);
-      setFilesList(data.files || []);
-      if (data.files?.length > 0) {
-        setSelectedFile(null);
-      }
-    } finally {
-      setIsLoading(false);
-    }
+    startRefresh(() => router.refresh());
   };
+
+  // Drop the selection if the selected file no longer exists after a refresh.
+  const selectedFile = files.find((file) => file.path === selectedPath && file.type === "file") ?? null;
+  useEffect(() => {
+    if (selectedPath && !selectedFile) setSelectedPath(null);
+  }, [selectedPath, selectedFile]);
 
   return (
     <main className="container grid grid-cols-12 gap-8 py-8">
-      <div className="col-span-3">
+      <div className="col-span-12 md:col-span-3">
         <FileExplorer
-          files={filesList}
+          files={files}
           repo={repo}
           username={username}
-          onSelectFile={setSelectedFile}
+          onSelectFile={(file) => setSelectedPath(file.path)}
           permissions={permissions}
-          isLoading={isLoading}
+          isLoading={isLoading || isRefreshing}
           setIsLoading={setIsLoading}
           refreshFiles={refreshFiles}
         />
       </div>
 
-      <div className="col-span-9">
+      <div className="col-span-12 md:col-span-9">
         {selectedFile ? (
           <FileViewer
             file={selectedFile}
@@ -61,6 +58,7 @@ export default function Content({
             username={username}
             permissions={permissions}
             refreshFiles={refreshFiles}
+            onDeleted={() => setSelectedPath(null)}
           />
         ) : (
           <div className="flex items-center justify-center h-80 bg-muted/10 rounded-lg border border-border">

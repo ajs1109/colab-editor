@@ -1,17 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: [
-      'flybjlchqkqochkvhyca.supabase.co', // Your Supabase storage domain
-      'avatars.githubusercontent.com', // For GitHub avatars
-      'lh3.googleusercontent.com', // For Google avatars
+    remotePatterns: [
+      { protocol: 'https', hostname: '*.supabase.co' }, // Supabase storage
+      { protocol: 'https', hostname: 'avatars.githubusercontent.com' }, // GitHub avatars
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com' }, // Google avatars
+      { protocol: 'https', hostname: 'placehold.jp' },
     ],
   },
   eslint: {
     ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true, // Only if you also have TypeScript errors
   },
 };
 

@@ -2,8 +2,8 @@
 
 import { NextResponse } from "next/server";
 import { createClient } from "../server";
-import { getProjectIdByUsernameAndRepoName, getUserIdByName } from ".";
-import { ApiResponse, ApiResponseHelper, isApiError, supabase } from "@/lib/apiClient";
+import { ApiResponse, ApiResponseHelper } from "@/lib/apiClient";
+import { getFileAtLatestCommit, getFilesAtCommit, getRepoAccess, RepoError } from "../repo-files";
 
 export const createProject = async (
   projectData: ProjectWithOptions,
@@ -314,14 +314,8 @@ export const getProject = async (username: string, repo: string) => {
       );
     }
 
-    // Get file tree for latest commit
-    const { data: fileTreeData, error: fileTreeError } = await supabase
-     .rpc('get_project_files_at_commit', {
-        target_commit_id: commitData.id,
-        target_project_id: repoData.id
-      })
-
-      if (fileTreeError) throw fileTreeError;
+    // Get file tree as of the latest commit
+    const fileTreeData = await getFilesAtCommit(supabase, repoData.id, commitData.id);
 
     // Get project members
     const { data: membersData, error: membersError } = await supabase
@@ -349,44 +343,17 @@ export const getProject = async (username: string, repo: string) => {
     }
 
     const members = membersData.map((m) => ({
-      ...m.user,
+      ...(m.user as unknown as IUser),
       role: m.role,
     }));
 
-    // Check if current user has permissions
-
-    const authUser = await supabase.auth.getUser();
-    const session = await supabase.auth.getSession();
-    // let permissions = {
-    //   read: true,
-    //   write: true,
-    //   admin: true,
-    // };
-
-     let permissions = {
-      read: repoData.is_public,
-      write: false,
-      admin: false,
-    };
-
-    if (session.data.session?.user.id) {
-      const currentUserMembership = membersData.find(
-        (m) => m.user.id === session.data.session?.user.id
+    // Same permission rules as the commit API.
+    const { permissions } = await getRepoAccess(supabase, username, repo);
+    if (!permissions.read) {
+      return NextResponse.json(
+        { error: "Repository not found" },
+        { status: 404 }
       );
-
-      if (currentUserMembership) {
-        permissions = {
-          read: true,
-          write: ["write", "admin"].includes(currentUserMembership.role),
-          admin: currentUserMembership.role === "admin",
-        };
-      } else if (repoData.created_by === session.data.session?.user.id) {
-        permissions = {
-          read: true,
-          write: true,
-          admin: true,
-        };
-      }
     }
 
     return NextResponse.json({
@@ -740,151 +707,18 @@ export const getLatestCommit = async (username: string, repo: string) => {
     );
   }
 };
-interface FileChange {
-  id?: string | null;
-  changeType: 'added' | 'modified' | 'renamed' | 'deleted';
-  path: string;
-  oldPath?: string;
-  content?: string | null;
-  oldContent?: string | null;
-  additions?: number;
-  deletions?: number;
-}
-
-export async function saveFileChangesAndCreateCommit({
-  username,
-  projectName,
-  message,
-  committerUsername,
-  files
-}: {
-  username: string;
-  projectName: string;
-  message: string;
-  committerUsername: string;
-  files: FileChange[];
-}) {
-  const supabase = await createClient();
-
-  try {
-    // Step 1: Validate and get required IDs
-    const { data: owner, error: ownerError } = await supabase
-      .from('users')
-      .select('id')
-      .eq('name', username)
-      .single();
-
-    if (ownerError || !owner) {
-      return NextResponse.json(
-        { error: 'Project owner not found' },
-        { status: 404 }
-      );
-    }
-
-    const { data: committer, error: committerError } = await supabase
-      .from('users')
-      .select('id')
-      .eq('name', committerUsername)
-      .single();
-
-    if (committerError || !committer) {
-      return NextResponse.json(
-        { error: 'Committer not found' },
-        { status: 404 }
-      );
-    }
-
-    const { data: project, error: projectError } = await supabase
-      .from('projects')
-      .select('id')
-      .eq('name', projectName)
-      .eq('created_by', owner.id)
-      .single();
-
-    if (projectError || !project) {
-      return NextResponse.json(
-        { error: 'Project not found' },
-        { status: 404 }
-      );
-    }
-
-    // Step 2: Get latest commit or handle first commit
-    const { data: latestCommit, error: commitError } = await supabase
-      .from('commits')
-      .select('id')
-      .eq('project_id', project.id)
-      .order('committed_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    const parentCommitId = latestCommit?.id || null;
-
-    // Step 3: Prepare transaction for atomic operations
-    let newCommitId: string | null = null;
-    
-    const { data: commitResult, error: commitCreationError } = await supabase
-      .rpc('create_commit_with_changes', {
-        project_id: project.id,
-        committer_id: committer.id,
-        parent_commit_id: parentCommitId,
-        commit_message: message,
-        changes: files.map(file => ({
-          file_id: file.id,
-          change_type: file.changeType,
-          old_path: file.oldPath,
-          new_path: file.path,
-          old_content: file.oldContent,
-          new_content: file.content,
-          additions: file.additions || 0,
-          deletions: file.deletions || 0
-        }))
-      })
-      .select()
-      .single();
-
-    if (commitCreationError) {
-      throw commitCreationError;
-    }
-
-    newCommitId = commitResult;
-
-    // Step 4: Return the full commit details
-    const { data: newCommit, error: commitFetchError } = await supabase
-      .from('commits')
-      .select(`
-        *,
-        committer:users(id, name, avatar),
-        changes:file_changes(
-          *,
-          file:file_tree(id, path, name)
-      `)
-      .eq('id', newCommitId)
-      .single();
-
-    if (commitFetchError) {
-      throw commitFetchError;
-    }
-
-    return NextResponse.json({
-      success: true,
-      commit: newCommit
-    });
-
-  } catch (error) {
-    console.error('Error saving changes:', error);
-    return NextResponse.json(
-      { error: 'Failed to save changes', details: error },
-      { status: 500 }
-    );
-  }
-}
-
 export async function getFile({ username, repo, path }: { username: string, repo: string, path: string }): Promise<ApiResponse<string>>{
-  const projectData = await getProjectIdByUsernameAndRepoName(username, repo);
-  if(isApiError(projectData)) return ApiResponseHelper.error(projectData.error.message, projectData.error.code, projectData.error.details);
-  
-  const { data: fileData, error: fileError } = await supabase.from('file_tree').select('content').eq('path', path).eq('project_id', projectData.data).single();
-  if(fileError) return ApiResponseHelper.error(fileError.message, fileError.code, fileError.details);
-  
-  return ApiResponseHelper.success(fileData.content);
+  const supabase = await createClient();
+  try {
+    const access = await getRepoAccess(supabase, username, repo);
+    if (!access.permissions.read) return ApiResponseHelper.error("You do not have access to this repository", "403");
+
+    const file = await getFileAtLatestCommit(supabase, access.projectId, path);
+    if (!file) return ApiResponseHelper.error("File not found", "404");
+
+    return ApiResponseHelper.success(file.content ?? "");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to load file";
+    return ApiResponseHelper.error(message, error instanceof RepoError ? String(error.status) : "500");
+  }
 }

@@ -6,12 +6,11 @@ import { getProject } from "@/utils/supabase/functions/projects";
 export default async function RepositoryPage({
   params,
 }: {
-  params: { username: string; repo: string };
+  params: Promise<{ username: string; repo: string }>;
 }) {
-  let { username, repo } = await params;
+  const { username, repo } = await params;
   const repoResponse = await getProject(username, repo);
   const repoData = await repoResponse.json();
-  console.log('repoData', repoData);
   if (!repoData.repository) {
     return <div>Repository not found</div>;
   }

@@ -81,7 +81,7 @@ export const auth = {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${location.origin}/auth/callback?next=${nextUrl || '/'}`,
+        redirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(nextUrl || '/')}`,
       },
     });
     if (error) throw error;

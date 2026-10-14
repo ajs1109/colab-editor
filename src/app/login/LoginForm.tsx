@@ -19,6 +19,7 @@ import { auth } from '@/utils/auth';
 import { useToast } from '@/components/ui/use-toast';
 import { getAuthError } from '@/utils/auth-errors';
 import { OAuthSignIn } from '@/components/auth/OAuthSignIn';
+import { safeRedirectPath } from '@/lib/utils';
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -32,7 +33,8 @@ export function LoginForm() {
     try {
       setIsLoading(true);
       await auth.signIn(email, password);
-      router.push('/projects');
+      const next = new URLSearchParams(window.location.search).get('next');
+      router.push(safeRedirectPath(next));
       router.refresh();
     } catch (error) {
       console.error('Auth error:', error);

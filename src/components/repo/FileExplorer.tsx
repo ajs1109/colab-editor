@@ -5,9 +5,15 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/lib/apiClient";
+import { commitChanges, RepoChange } from "@/lib/repo-client";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface FileExplorerProps {
@@ -44,73 +50,22 @@ export function FileExplorer({
   const [currentPath, setCurrentPath] = useState("");
   const { toast } = useToast();
 
-  const handleCreate = async () => {
-    if (!newName.trim()) {
-      toast({
-        title: "Error",
-        description: "Name cannot be empty",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const runCommit = async (
+    message: string,
+    changes: RepoChange[],
+    successMessage: string,
+    onSuccess: () => void
+  ) => {
     setIsLoading(true);
     try {
-      // Get latest commit
-      const { data: commitData, error: commitError } = await supabase
-        .from('commits')
-        .select('id')
-        .eq('project_id', repo.id)
-        .order('committed_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (commitError) throw commitError;
-
-      const fullPath = currentPath ? `${currentPath}/${newName}` : newName;
-
-      // Create file/folder
-      const { data, error } = await supabase
-        .from('file_tree')
-        .insert([{
-          project_id: repo.id,
-          commit_id: commitData.id,
-          path: fullPath,
-          name: newName,
-          type: isDirectory ? 'dir' : 'file',
-          content: isDirectory ? null : "",
-          extension: isDirectory ? null : newName.split('.').pop() || '',
-          mime_type: isDirectory ? null : 'text/plain'
-        }])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Create commit for this change
-      const session = await supabase.auth.getSession();
-      const { error: commitCreateError } = await supabase
-        .from('commits')
-        .insert({
-          project_id: repo.id,
-          message: `Create ${isDirectory ? 'directory' : 'file'} ${fullPath}`,
-          committer_id: session.data.session?.user.id,
-          parent_commit_id: commitData.id
-        });
-
-      if (commitCreateError) throw commitCreateError;
-
-      toast({
-        title: "Success",
-        description: `${isDirectory ? 'Folder' : 'File'} created successfully`,
-      });
-      setIsCreateOpen(false);
-      setNewName("");
+      await commitChanges(username, repo.name, message, changes);
+      toast({ title: "Success", description: successMessage });
+      onSuccess();
       await refreshFiles();
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to create item",
+        description: error instanceof Error ? error.message : "Something went wrong",
         variant: "destructive",
       });
     } finally {
@@ -118,127 +73,69 @@ export function FileExplorer({
     }
   };
 
+  const isValidName = (name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed || trimmed === "." || trimmed === ".." || trimmed.includes("/")) {
+      toast({
+        title: "Error",
+        description: "Enter a name without slashes",
+        variant: "destructive",
+      });
+      return false;
+    }
+    return true;
+  };
+
+  const handleCreate = async () => {
+    if (!isValidName(newName)) return;
+
+    const name = newName.trim();
+    const fullPath = currentPath ? `${currentPath}/${name}` : name;
+    const kind = isDirectory ? "folder" : "file";
+
+    await runCommit(
+      `Create ${kind} ${fullPath}`,
+      [{ action: "create", path: fullPath, type: isDirectory ? "dir" : "file", content: "" }],
+      `${isDirectory ? "Folder" : "File"} created`,
+      () => {
+        setIsCreateOpen(false);
+        setNewName("");
+      }
+    );
+  };
+
   const handleRename = async () => {
-    if (!currentFile || !newName.trim()) {
-      toast({
-        title: "Error",
-        description: "Name cannot be empty",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (!currentFile || !isValidName(newName)) return;
 
-    setIsLoading(true);
-    try {
-      // Get latest commit
-      const { data: commitData, error: commitError } = await supabase
-        .from('commits')
-        .select('id')
-        .eq('project_id', repo.id)
-        .order('committed_at', { ascending: false })
-        .limit(1)
-        .single();
+    const parentPath = currentFile.path.split("/").slice(0, -1).join("/");
+    const newPath = parentPath ? `${parentPath}/${newName.trim()}` : newName.trim();
 
-      if (commitError) throw commitError;
-
-      const parentPath = currentFile.path.split('/').slice(0, -1).join('/');
-      const newPath = parentPath ? `${parentPath}/${newName}` : newName;
-
-      // Update file/folder
-      const { error } = await supabase
-        .from('file_tree')
-        .update({
-          name: newName,
-          path: newPath,
-          extension: currentFile.type === 'file' ? newName.split('.').pop() || '' : null
-        })
-        .eq('id', currentFile.id);
-
-      if (error) throw error;
-
-      // Create commit for this change
-      const session = await supabase.auth.getSession();
-      const { error: commitCreateError } = await supabase
-        .from('commits')
-        .insert({
-          project_id: repo.id,
-          message: `Rename ${currentFile.path} to ${newPath}`,
-          committer_id: session.data.session?.user.id,
-          parent_commit_id: commitData.id
-        });
-
-      if (commitCreateError) throw commitCreateError;
-
-      toast({
-        title: "Success",
-        description: "Item renamed successfully",
-      });
-      setIsEditOpen(false);
-      setNewName("");
-      await refreshFiles();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to rename item",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    await runCommit(
+      `Rename ${currentFile.path} to ${newPath}`,
+      [{ action: "rename", path: currentFile.path, newPath }],
+      "Item renamed",
+      () => {
+        setIsEditOpen(false);
+        setNewName("");
+      }
+    );
   };
 
   const handleDelete = async () => {
     if (!currentFile) return;
 
-    setIsLoading(true);
-    try {
-      // Get latest commit
-      const { data: commitData, error: commitError } = await supabase
-        .from('commits')
-        .select('id')
-        .eq('project_id', repo.id)
-        .order('committed_at', { ascending: false })
-        .limit(1)
-        .single();
+    await runCommit(
+      `Delete ${currentFile.path}`,
+      [{ action: "delete", path: currentFile.path }],
+      "Item deleted",
+      () => setIsDeleteOpen(false)
+    );
+  };
 
-      if (commitError) throw commitError;
-
-      // Delete file/folder
-      const { error } = await supabase
-        .from('file_tree')
-        .delete()
-        .eq('id', currentFile.id);
-
-      if (error) throw error;
-
-      // Create commit for this change
-      const session = await supabase.auth.getSession();
-      const { error: commitCreateError } = await supabase
-        .from('commits')
-        .insert({
-          project_id: repo.id,
-          message: `Delete ${currentFile.path}`,
-          committer_id: session.data.session?.user.id,
-          parent_commit_id: commitData.id
-        });
-
-      if (commitCreateError) throw commitCreateError;
-
-      toast({
-        title: "Success",
-        description: "Item deleted successfully",
-      });
-      setIsDeleteOpen(false);
-      await refreshFiles();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete item",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+  const openCreateDialog = (directory: boolean) => {
+    setIsDirectory(directory);
+    setNewName("");
+    setIsCreateOpen(true);
   };
 
   const openEditDialog = (file: File) => {
@@ -296,21 +193,30 @@ export function FileExplorer({
           <Button 
             variant="ghost" 
             size="sm"
-            onClick={() => window.location.reload()}
+            onClick={() => refreshFiles()}
             disabled={isLoading}
           >
             <Icons.refreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
           </Button>
           {permissions.write && (
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setIsCreateOpen(true)}
-              disabled={isLoading}
-            >
-              <Icons.plus className="h-4 w-4 mr-1" />
-              New
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" disabled={isLoading}>
+                  <Icons.plus className="h-4 w-4 mr-1" />
+                  New
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onSelect={() => openCreateDialog(false)}>
+                  <Icons.file className="h-4 w-4 mr-2" />
+                  New file
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => openCreateDialog(true)}>
+                  <Icons.folder className="h-4 w-4 mr-2" />
+                  New folder
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
       </div>
@@ -382,6 +288,33 @@ export function FileExplorer({
       </ScrollArea>
 
 
+      {/* Create dialog */}
+      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New {isDirectory ? "Folder" : "File"}</DialogTitle>
+            <DialogDescription>
+              Created in /{currentPath || repo.name} and recorded as a new commit.
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            autoFocus
+            placeholder={isDirectory ? "folder-name" : "file-name.ts"}
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleCreate()}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreate} disabled={isLoading}>
+              {isLoading ? "Creating..." : "Create"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Rename dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent>
@@ -393,6 +326,7 @@ export function FileExplorer({
               placeholder={`Enter new name`}
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleRename()}
             />
           </div>
           <DialogFooter>
@@ -411,7 +345,7 @@ export function FileExplorer({
               Delete {currentFile?.type === 'dir' ? "Folder" : "File"}
             </DialogTitle>
             <DialogDescription>
-              This action cannot be undone. {currentFile?.type === 'dir' ? "All contents will be deleted." : ""}
+              The deletion is recorded as a new commit{currentFile?.type === "dir" ? " and includes everything inside this folder" : ""}.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

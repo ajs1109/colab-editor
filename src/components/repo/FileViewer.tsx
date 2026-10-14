@@ -1,14 +1,11 @@
-
-
 import { File } from "@/types/project";
 import { Icons } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import SyntaxHighlighter from "react-syntax-highlighter";
-//import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import Link from "next/link";
-import { EditorPanel } from "./EditorPanel";
 import { useState } from "react";
-import { supabase } from "@/lib/apiClient";
+import { useToast } from "@/components/ui/use-toast";
+import { commitChanges } from "@/lib/repo-client";
 
 interface FileViewerProps {
   file: File;
@@ -20,6 +17,7 @@ interface FileViewerProps {
     admin: boolean;
   };
   refreshFiles: () => Promise<void>;
+  onDeleted?: () => void;
 }
 
 export function FileViewer({
@@ -28,101 +26,80 @@ export function FileViewer({
   username,
   permissions,
   refreshFiles,
+  onDeleted,
 }: FileViewerProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [fileContent, setFileContent] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { toast } = useToast();
 
+  const content = file.content ?? "";
   const extension = file.name.split(".").pop() || "text";
   const pathParts = file.path.split("/").filter((p) => p);
-  const breadcrumbs = [
-    { name: repo.name, path: `/${username}/${repo.name}` },
-    ...pathParts.map((part, i) => ({
-      name: part,
-      path: `/${username}/${repo.name}/${pathParts.slice(0, i + 1).join("/")}`,
-    })),
-  ];
+  const editHref = `/${username}/${repo.name}/edit/${pathParts.map(encodeURIComponent).join("/")}`;
 
-  const handleSave = async () => {
-    try {
-      // Save to Supabase
-      const { error } = await supabase
-        .from("file_tree")
-        .update({
-          content: fileContent,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", file.id);
-
-      if (error) throw error;
-
-      setIsEditing(false);
-      await refreshFiles();
-    } catch (error) {
-      console.error("Error saving file:", error);
-    }
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(content);
+    toast({ title: "Copied", description: `${file.name} copied to clipboard` });
   };
 
-  // Format the playground code for display
-  const formattedContent = fileContent
-    .replace(/\/\/.*$/gm, "") // Remove single-line comments
-    .trim();
+  const handleDownload = () => {
+    const url = URL.createObjectURL(new Blob([content], { type: "text/plain;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = file.name;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
-  if (isEditing && permissions.write) {
-    return (
-      <div className="bg-muted/10 border border-border rounded-lg overflow-hidden h-full min-h-[400px]">
-        <EditorPanel
-          initialContent={fileContent}
-          language={extension}
-          onSave={handleSave}
-          onCancel={() => setIsEditing(false)}
-          //onChange={setFileContent}
-        />
-      </div>
-    );
-  }
+  const handleDelete = async () => {
+    if (!confirm(`Delete ${file.path}? The deletion is recorded as a new commit.`)) return;
+    setIsDeleting(true);
+    try {
+      await commitChanges(username, repo.name, `Delete ${file.path}`, [{ action: "delete", path: file.path }]);
+      onDeleted?.();
+      await refreshFiles();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to delete file",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="bg-muted/10 border border-border rounded-lg overflow-hidden min-h-[300px]">
       <div className="flex items-center justify-between p-4 border-b border-border">
         {/* Breadcrumb navigation */}
-        <div className="flex items-center gap-1 text-sm">
-          {breadcrumbs.map((crumb, i) => (
-            <div key={i} className="flex items-center">
-              {i > 0 && (
-                <Icons.chevronRight className="h-4 w-4 mx-1 text-muted-foreground" />
-              )}
-              <Link
-                href={crumb.path}
-                className="hover:text-primary hover:underline"
-              >
-                {crumb.name}
-              </Link>
+        <div className="flex items-center gap-1 text-sm min-w-0">
+          <Link href={`/${username}/${repo.name}`} className="hover:text-primary hover:underline">
+            {repo.name}
+          </Link>
+          {pathParts.map((part, i) => (
+            <div key={i} className="flex items-center min-w-0">
+              <Icons.chevronRight className="h-4 w-4 mx-1 text-muted-foreground flex-shrink-0" />
+              <span className={i === pathParts.length - 1 ? "font-medium truncate" : "text-muted-foreground truncate"}>
+                {part}
+              </span>
             </div>
           ))}
         </div>
 
         {/* File actions */}
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" className="gap-1">
+          <Button variant="ghost" size="sm" className="gap-1" onClick={handleDownload}>
             <Icons.download className="h-4 w-4" />
             Download
           </Button>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            className="gap-1"
-            onClick={() => navigator.clipboard.writeText(fileContent)}
-          >
+          <Button variant="ghost" size="sm" className="gap-1" onClick={handleCopy}>
             <Icons.copy className="h-4 w-4" />
             Copy
           </Button>
           {permissions.write && (
-            <Button variant="ghost" size="sm" className="gap-1">
-              <Link
-                href={`/${username}/${repo.name}/edit/${file.path}`}
-                className="flex text-sm gap-2"
-              >
+            <Button variant="ghost" size="sm" className="gap-1" asChild>
+              <Link href={editHref} className="flex text-sm gap-2">
                 <Icons.edit className="h-4 w-4" />
                 Edit
               </Link>
@@ -133,34 +110,29 @@ export function FileViewer({
               variant="ghost"
               size="sm"
               className="gap-1 text-destructive"
-              onClick={async () => {
-                if (confirm("Are you sure you want to delete this file?")) {
-                  await supabase.from("file_tree").delete().eq("id", file.id);
-                  await refreshFiles();
-                }
-              }}
+              onClick={handleDelete}
+              disabled={isDeleting}
             >
               <Icons.trash className="h-4 w-4" />
-              Delete
+              {isDeleting ? "Deleting..." : "Delete"}
             </Button>
           )}
         </div>
       </div>
 
       <div className="p-0">
-            <SyntaxHighlighter
-              language={extension}
-              //style={atomOneDark}
-              showLineNumbers
-              customStyle={{
-                margin: 0,
-                borderRadius: 0,
-                background: "rgba(240, 246, 252, 0.01)",
-                padding: "2rem",
-              }}
-            >
-              {file.content ?? ''}
-            </SyntaxHighlighter>
+        <SyntaxHighlighter
+          language={extension}
+          showLineNumbers
+          customStyle={{
+            margin: 0,
+            borderRadius: 0,
+            background: "rgba(240, 246, 252, 0.01)",
+            padding: "2rem",
+          }}
+        >
+          {content}
+        </SyntaxHighlighter>
       </div>
     </div>
   );

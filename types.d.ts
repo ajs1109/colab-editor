@@ -17,6 +17,8 @@ interface UserLink {
   url: string;
 }
 
+type IUserLink = UserLink;
+
 interface IUser {
   id: string;
   email: string;

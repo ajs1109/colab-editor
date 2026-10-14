@@ -1,14 +1,13 @@
 // app/[username]/[repo]/commits/[commit_id]/page.tsx
 import { CommitDetails } from '@/components/repo/CommitDetails';
-import { projects } from '@/utils/projects';
 import RepositoryLayout from '../../repoLayout';
 import { notFound } from 'next/navigation';
-import { getCommit } from '@/utils/supabase/functions/projects';
+import { getCommit, getProject } from '@/utils/supabase/functions/projects';
 
 export default async function CommitPage({
   params,
 }: {
-  params: { username: string; repo: string; commit_id: string };
+  params: Promise<{ username: string; repo: string; commit_id: string }>;
 }) {
   const { username, repo, commit_id } = await params;
   // Fetch commit details
@@ -23,11 +22,11 @@ export default async function CommitPage({
   }
 
   const commitData = await commitResponse.json();
-  console.log('commit data:', commitData);
 
   // Fetch basic repo info for the header
-  const repoResponse = await projects.getProject(params.username, params.repo);
+  const repoResponse = await getProject(username, repo);
   const repoData = await repoResponse.json();
+  if (!repoData.repository) notFound();
 
   return (
     <RepositoryLayout repoData={repoData}>

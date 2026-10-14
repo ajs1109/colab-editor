@@ -344,7 +344,7 @@ export const projects = {
 
       if (session.data.session?.user.id) {
         const currentUserMembership = membersData.find(
-          (m) => m.user.id === session.data.session?.user.id
+          (m) => (m.user as unknown as IUser).id === session.data.session?.user.id
         );
 
         if (currentUserMembership) {
